@@ -1,0 +1,104 @@
+title = "ads-mcp — secret gate"
+
+# Start from the built-in ruleset (AWS, GCP, private keys, JWTs, ...) and add what
+# matters for a server that holds ad-platform credentials.
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# The most important rule here, and the one that is not about credentials at all.
+#
+# The codebase this was extracted from leaked every one of its secrets the same
+# way: a Spring placeholder whose DEFAULT was the real value, e.g.
+#     app-secret: ${META_APP_SECRET:9f3c...}
+# The env-var indirection looks safe and is not — the literal default is the
+# committed secret. A non-empty default is therefore forbidden outright,
+# whatever it looks like, which also catches leaks no credential pattern would:
+# an ad account id, an owner's name, a demo password, a production hostname.
+# ---------------------------------------------------------------------------
+[[rules]]
+id = "spring-placeholder-with-default"
+description = "Spring ${ENV_VAR:default} with a non-empty default — write ${ENV_VAR:} instead"
+regex = '''\$\{[A-Za-z0-9_.-]+:[^}\s][^}]*\}'''
+path = '''(?i)application.*\.(ya?ml|properties)$'''
+tags = ["config", "structural"]
+
+[[rules]]
+id = "google-oauth-client-secret"
+description = "Google OAuth client secret"
+regex = '''\bGOCSPX-[A-Za-z0-9_-]{20,}\b'''
+
+[[rules]]
+id = "google-oauth-client-id"
+description = "Google OAuth client id"
+regex = '''\b\d{10,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com\b'''
+[rules.allowlist]
+regexes = ['''1234567890-[a-z]{20,}\.apps\.googleusercontent\.com''']
+
+[[rules]]
+id = "google-ads-developer-token"
+description = "Google Ads developer token assigned to a developer-token key"
+regex = '''(?i)developer[_-]?token\s*[:=]\s*['"]?[A-Za-z0-9_-]{20,25}['"]?\s*$'''
+[rules.allowlist]
+regexes = ['''(?i)developer[_-]?token\s*[:=]\s*['"]?(YOUR_|CHANGE_?ME|REPLACE_?ME|\$\{|<)''']
+
+[[rules]]
+id = "meta-app-secret"
+description = "Meta app secret (32 lowercase hex) assigned to an app-secret / client-secret key"
+regex = '''(?i)(app[_-]?secret|client[_-]?secret)\s*[:=]\s*['"]?\b[a-f0-9]{32}\b'''
+[rules.allowlist]
+regexes = ['''0{32}''', '''(deadbeef|cafebabe)''']
+
+[[rules]]
+id = "meta-access-token"
+description = "Meta / Facebook Graph access token"
+regex = '''\bEAA[A-Za-z0-9]{60,}\b'''
+
+[[rules]]
+id = "meta-ad-account-id"
+description = "Meta ad account id (act_NNNNNNNN) — a real business identifier, never a fixture"
+regex = '''\bact_\d{8,}\b'''
+[rules.allowlist]
+regexes = ['''act_1234567890''', '''act_0+''']
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API or service-account key"
+regex = '''\bsk-(proj|svcacct)?-?[A-Za-z0-9_-]{32,}\b'''
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram bot token"
+regex = '''\b\d{8,10}:[A-Za-z0-9_-]{35}\b'''
+
+[[rules]]
+id = "aes-256-base64-key"
+description = "base64 32-byte key assigned to an encryption-key property"
+regex = '''(?i)(encryption[_-]?key|token[_-]?enc[a-z_-]*)\s*[:=]\s*['"]?[A-Za-z0-9+/]{43}=['"]?'''
+
+[[rules]]
+id = "private-key-block"
+description = "PEM private key block"
+regex = '''-----BEGIN (RSA |EC |OPENSSH |PGP |DSA )?PRIVATE KEY( BLOCK)?-----'''
+
+# Identifiers that are not credentials but must never appear in a public repo.
+# Described by shape, so this file itself discloses nothing.
+[[rules]]
+id = "operator-internal-identifiers"
+description = "Personal email, deploy key path or cloud host of the originating deployment"
+regex = '''(?i)(ec2-[\d-]+\.[a-z0-9-]+\.compute\.amazonaws\.com|ubuntu@ec2-|[\w.]+\.pem\b)'''
+
+# ---------------------------------------------------------------------------
+# Global allowlist. Deliberately tiny: a growing allowlist is how a gate rots.
+# Every entry carries a reason.
+# ---------------------------------------------------------------------------
+[allowlist]
+description = "documented placeholders only"
+paths = [
+  '''(^|/)\.gitleaks\.toml$''',   # this file's own example patterns
+  '''(^|/)mvnw(\.cmd)?$''',
+  '''(^|/)\.mvn/wrapper/''',
+]
+regexes = [
+  '''(?i)(YOUR_[A-Z_]+|CHANGE_?ME|REPLACE_?ME|example\.com|xxxxxxxx)''',
+]
