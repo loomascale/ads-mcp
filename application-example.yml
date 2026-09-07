@@ -12,11 +12,11 @@
 # Every secret is read from the environment with no default, and the server refuses to
 # start (or refuses the specific operation) when one is missing, naming the variable.
 #
-# Never add `${SOME_VAR:some-value}` to this file. A non-empty placeholder default is a
-# committed literal, and a committed literal is how credentials leak: the env-var
-# indirection reads as safe while the default IS the secret. Two gates fail the build if
-# you try — scripts/check-no-inline-defaults.sh and the spring-placeholder-with-default
-# rule in .gitleaks.toml.
+# Never give a Spring placeholder a non-empty fallback value in a config file. It reads as
+# safe and it is a committed literal — that pattern is exactly how the codebase this was
+# extracted from leaked ~18 live credentials. Two gates fail the build if you try:
+# scripts/check-no-inline-defaults.sh and the spring-placeholder-with-default rule in
+# .gitleaks.toml. CONTRIBUTING.md shows the offending shape and the fix.
 #
 # The keys deliberately absent from this file, and where they come from instead:
 #   OAUTH_ACCESS_TOKEN_SECRET   oauth.access-token-secret   (OAuthProperties)
