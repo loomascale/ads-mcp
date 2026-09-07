@@ -18,7 +18,7 @@
   <description>Self-hostable MCP servers for ad platforms, letting ChatGPT or Claude read
     and manage real ad accounts with server-side spend guardrails. Contains the shared MCP
     protocol and OAuth 2.1 core plus one runnable server per platform.</description>
-  <url>https://ai.loomascale.com/oss/ads-mcp</url>
+  <url>https://ai.loomascale.com/oss</url>
 
   <licenses>
     <license>

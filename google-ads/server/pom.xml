@@ -16,6 +16,9 @@
   <name>google-ads-mcp</name>
   <description>The runnable MCP server: Google Ads tools, spend guardrails, the connect
     flow, and a Spring Boot application.</description>
+  <!-- Overrides the inherited hub URL: this artifact has its own documentation page, and
+       this value reaches Maven Central metadata. -->
+  <url>https://ai.loomascale.com/oss/google-ads-mcp</url>
 
   <dependencies>
     <dependency>
