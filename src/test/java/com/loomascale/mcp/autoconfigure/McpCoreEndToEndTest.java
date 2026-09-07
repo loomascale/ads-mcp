@@ -67,6 +67,14 @@ class McpCoreEndToEndTest {
         }
 
         @Override
+        public AdsConnection save(com.loomascale.mcp.spi.NewAdsConnection connection) {
+          throw new UnsupportedOperationException("not exercised by this test");
+        }
+
+        @Override
+        public void selectTarget(String connectionId, String targetId) {}
+
+        @Override
         public String freshAccessToken(AdsConnection connection) {
           return "token";
         }

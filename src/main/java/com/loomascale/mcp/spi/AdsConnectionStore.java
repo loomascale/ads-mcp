@@ -14,6 +14,20 @@ public interface AdsConnectionStore {
 
   Optional<AdsConnection> find(String userId, String platformKey);
 
+  // Stores a connection a platform's consent flow has just produced, replacing any
+  // existing one for the same user and platform. Reconnecting is the normal way a user
+  // fixes an expired or under-scoped grant, so this is an upsert rather than an insert
+  // that could fail on the second attempt.
+  //
+  // Returns the stored connection, so a caller can immediately act on it without a
+  // second read.
+  AdsConnection save(NewAdsConnection connection);
+
+  // Which ad account subsequent tool calls should default to. Separate from save() because
+  // choosing an account is a later, repeatable decision: the connect flow discovers what
+  // is available, and the operator picks.
+  void selectTarget(String connectionId, String targetId);
+
   // A usable access token, refreshing first when the stored one is expired or near it.
   //
   // Throws McpToolException when the grant is dead and only reconnecting can fix it. A

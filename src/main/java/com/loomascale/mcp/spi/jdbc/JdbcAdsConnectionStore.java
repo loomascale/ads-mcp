@@ -8,6 +8,7 @@ import com.loomascale.mcp.spi.AdsConnectionState;
 import com.loomascale.mcp.spi.AdsConnectionStore;
 import com.loomascale.mcp.spi.AdsTarget;
 import com.loomascale.mcp.spi.AdsTokenRefresher;
+import com.loomascale.mcp.spi.NewAdsConnection;
 import com.loomascale.mcp.tool.McpToolException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -75,6 +76,74 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
             platformKey)
         .stream()
         .findFirst();
+  }
+
+  // Upsert on (user_id, platform_key), which the unique constraint enforces. Reconnecting
+  // is how a user fixes an expired or under-scoped grant, so a second connect must replace
+  // the first rather than fail.
+  @Override
+  public AdsConnection save(NewAdsConnection connection) {
+    String existingId =
+        jdbc
+            .query(
+                "select id from mcp_ads_connections where user_id = ? and platform_key = ?",
+                (ResultSet rs, int rowNum) -> rs.getString("id"),
+                connection.userId(),
+                connection.platformKey())
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+    String id = existingId != null ? existingId : java.util.UUID.randomUUID().toString();
+    String targetsJson = serializeTargets(connection.targets());
+
+    if (existingId == null) {
+      jdbc.update(
+          "insert into mcp_ads_connections (id, user_id, platform_key, state, access_token_enc,"
+              + " refresh_token_enc, token_expires_at, granted_scopes, selected_target_id,"
+              + " targets_json, default_page_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          id,
+          connection.userId(),
+          connection.platformKey(),
+          connection.state().name(),
+          cipher.encrypt(connection.accessToken()),
+          cipher.encrypt(connection.refreshToken()),
+          connection.expiresAt() == null ? null : Timestamp.from(connection.expiresAt()),
+          connection.grantedScopes(),
+          connection.selectedTargetId(),
+          targetsJson,
+          connection.defaultPageId());
+    } else {
+      // coalesce on the refresh token: platforms commonly omit it on a re-consent, and
+      // writing null would destroy the grant.
+      jdbc.update(
+          "update mcp_ads_connections set state = ?, access_token_enc = ?,"
+              + " refresh_token_enc = coalesce(?, refresh_token_enc), token_expires_at = ?,"
+              + " granted_scopes = ?, selected_target_id = ?, targets_json = ?,"
+              + " default_page_id = ?, updated_at = ? where id = ?",
+          connection.state().name(),
+          cipher.encrypt(connection.accessToken()),
+          connection.refreshToken() == null ? null : cipher.encrypt(connection.refreshToken()),
+          connection.expiresAt() == null ? null : Timestamp.from(connection.expiresAt()),
+          connection.grantedScopes(),
+          connection.selectedTargetId(),
+          targetsJson,
+          connection.defaultPageId(),
+          Timestamp.from(Instant.now()),
+          id);
+    }
+    log.debug("Stored {} connection {} for {}", connection.platformKey(), id, connection.userId());
+    return find(connection.userId(), connection.platformKey())
+        .orElseThrow(() -> new IllegalStateException("Connection vanished immediately after save"));
+  }
+
+  @Override
+  public void selectTarget(String connectionId, String targetId) {
+    jdbc.update(
+        "update mcp_ads_connections set selected_target_id = ?, updated_at = ? where id = ?",
+        targetId,
+        Timestamp.from(Instant.now()),
+        connectionId);
   }
 
   @Override
@@ -178,6 +247,18 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
 
   // Writes the snapshot back, re-encrypting each login hint.
   private void writeTargets(String connectionId, List<AdsTarget> targets) {
+    jdbc.update(
+        "update mcp_ads_connections set targets_json = ? where id = ?",
+        serializeTargets(targets),
+        connectionId);
+  }
+
+  // The login hint can be a page access token or a manager-account id, so it is encrypted
+  // inside the snapshot rather than stored alongside it in clear.
+  private String serializeTargets(List<AdsTarget> targets) {
+    if (targets == null) {
+      return null;
+    }
     List<StoredTarget> stored =
         targets.stream()
             .map(
@@ -189,12 +270,9 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
                         t.loginHint() == null ? null : cipher.encrypt(t.loginHint())))
             .toList();
     try {
-      jdbc.update(
-          "update mcp_ads_connections set targets_json = ? where id = ?",
-          objectMapper.writeValueAsString(stored),
-          connectionId);
+      return objectMapper.writeValueAsString(stored);
     } catch (Exception e) {
-      throw new IllegalStateException("Could not write the target snapshot", e);
+      throw new IllegalStateException("Could not serialize the target snapshot", e);
     }
   }
 
