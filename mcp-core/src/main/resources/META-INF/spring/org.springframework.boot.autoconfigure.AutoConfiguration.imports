@@ -1,0 +1,4 @@
+com.loomascale.mcp.autoconfigure.McpPersistenceAutoConfiguration
+com.loomascale.mcp.autoconfigure.McpSecurityAutoConfiguration
+com.loomascale.mcp.autoconfigure.McpOAuthAutoConfiguration
+com.loomascale.mcp.autoconfigure.McpServerAutoConfiguration

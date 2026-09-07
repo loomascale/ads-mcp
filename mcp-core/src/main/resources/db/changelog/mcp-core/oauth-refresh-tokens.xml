@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+    logicalFilePath="db/changelog/mcp-core/oauth-refresh-tokens.xml">
+
+  <changeSet id="mcp-core-003-oauth-refresh-tokens" author="mcp-core">
+    <preConditions onFail="MARK_RAN">
+      <not><tableExists tableName="oauth_refresh_tokens"/></not>
+    </preConditions>
+    <createTable tableName="oauth_refresh_tokens">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="token_hash" type="VARCHAR(64)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <!-- Ties every rotation of one original grant together. Presenting an
+           already-rotated token means a copy leaked, and the whole family is revoked. -->
+      <column name="family_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="client_id" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="scope" type="TEXT"/>
+      <column name="expires_at" type="TIMESTAMP WITH TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="rotated" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="revoked" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex tableName="oauth_refresh_tokens" indexName="idx_oauth_refresh_user_client">
+      <column name="user_id"/>
+      <column name="client_id"/>
+    </createIndex>
+    <!-- Revocation walks a whole family, so that lookup must not be a table scan. -->
+    <createIndex tableName="oauth_refresh_tokens" indexName="idx_oauth_refresh_family">
+      <column name="family_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

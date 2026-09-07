@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <!--
+    The schema this library needs. Include it from your own master changelog:
+
+      <include file="db/changelog/mcp-core/mcp-core-master.xml"/>
+
+    Two things make that safe to do against a database that ALREADY has these tables,
+    which is the case for any application adopting this library after having grown its
+    own copy of the same schema:
+
+    1. Changeset ids are prefixed `mcp-core-` and the author is `mcp-core`. Liquibase
+       identity is (id, author, filePath), so these can never collide with yours.
+
+    2. Every createTable carries a `not tableExists` precondition with
+       onFail="MARK_RAN". An existing table is recorded as already applied instead of
+       failing the deployment, so adoption needs no manual DATABASECHANGELOG surgery.
+
+    logicalFilePath is pinned so the recorded path stays stable whether these files are
+    resolved from a jar, from target/classes, or from a shaded artifact. Without it, a
+    change in build layout re-runs everything.
+  -->
+  <include file="db/changelog/mcp-core/oauth-clients.xml"/>
+  <include file="db/changelog/mcp-core/oauth-authorization-codes.xml"/>
+  <include file="db/changelog/mcp-core/oauth-refresh-tokens.xml"/>
+  <include file="db/changelog/mcp-core/write-audit.xml"/>
+</databaseChangeLog>

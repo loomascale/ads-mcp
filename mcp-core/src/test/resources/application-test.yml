@@ -1,0 +1,22 @@
+# Test configuration. Note that no secret has a default here either: the signing key is
+# a test-only literal, which is exactly what a test fixture should be and never what a
+# committed application.yml should contain.
+spring:
+  datasource:
+    url: jdbc:h2:mem:mcpcore;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  liquibase:
+    change-log: classpath:db/changelog/mcp-core/mcp-core-master.xml
+
+oauth:
+  issuer: http://localhost:8080
+  access-token-secret: dGVzdC1vbmx5LXNlY3JldC1mb3ItdW5pdC10ZXN0cy1uZXZlci1yZWFs
+
+mcp:
+  branding:
+    product-name: Test Server
+    server-name: test-ads
+  consent:
+    operator-password: correct-horse-battery-staple
