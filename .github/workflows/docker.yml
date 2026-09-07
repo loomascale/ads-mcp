@@ -19,7 +19,7 @@ jobs:
       # QEMU lets the amd64 runner emit an arm64 layer too. Without both, users on
       # Apple Silicon or Graviton get "no matching manifest for linux/arm64".
       - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       # On a pull request the image is built but not pushed, so a broken Dockerfile fails
       # review rather than being discovered at deploy time.
