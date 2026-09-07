@@ -1,0 +1,78 @@
+# ---------------------------------------------------------------------------
+# EXAMPLE configuration for an application embedding mcp-core. Copy the parts you need
+# into your own application.yml.
+#
+# This file is deliberately NOT on the classpath. A library that ships
+# src/main/resources/application.yml either gets shadowed by the consuming application's
+# own file or, worse, silently becomes its configuration. Real defaults live in the
+# @ConfigurationProperties classes (McpProperties, OAuthProperties) where they belong.
+#
+# THERE ARE NO CREDENTIALS HERE AND THERE NEVER WILL BE.
+#
+# Every secret is read from the environment with no default, and the server refuses to
+# start (or refuses the specific operation) when one is missing, naming the variable.
+#
+# Never add `${SOME_VAR:some-value}` to this file. A non-empty placeholder default is a
+# committed literal, and a committed literal is how credentials leak: the env-var
+# indirection reads as safe while the default IS the secret. Two gates fail the build if
+# you try — scripts/check-no-inline-defaults.sh and the spring-placeholder-with-default
+# rule in .gitleaks.toml.
+#
+# The keys deliberately absent from this file, and where they come from instead:
+#   OAUTH_ACCESS_TOKEN_SECRET   oauth.access-token-secret   (OAuthProperties)
+#   MCP_TOKEN_ENCRYPTION_KEY    mcp.token-encryption-key    (McpPersistenceAutoConfiguration)
+#   MCP_OPERATOR_PASSWORD       mcp.consent.operator-password (McpProperties)
+# See .env.example for how to generate each one.
+# ---------------------------------------------------------------------------
+
+mcp:
+  branding:
+    # Appears in messages a model relays to the user. "this server" reads correctly in a
+    # sentence; set it to your product name if you have one.
+    product-name: this server
+    # Reported in the MCP initialize handshake. A stable slug, not a title.
+    server-name: ads-mcp
+    # Where a user manages ad-platform connections. Defaults to <issuer>/connections.
+    connections-url: ""
+
+  consent:
+    # "builtin" serves the bundled consent page; "external" redirects to consent.url.
+    mode: builtin
+    path: /oauth/consent
+    url: ""
+    # The user id every authorization is attributed to in single-operator mode.
+    user-id: self
+
+  quota:
+    # A runaway-loop guard, not billing: a model stuck in a loop can otherwise issue
+    # hundreds of writes against a live ad account in a minute.
+    turn-window-seconds: 119
+    max-calls-per-turn: 40
+
+  image-upload:
+    max-bytes: 8388608
+    min-bytes: 512
+    connect-timeout-ms: 3000
+    read-timeout-ms: 10000
+    # Wall-clock budget for the whole fetch, redirects included. Enforced inside the read
+    # loop, because HttpRequest.timeout only covers response headers: without this, a body
+    # that trickles one byte at a time would never time out.
+    total-timeout-ms: 20000
+    max-redirects: 3
+    allow-http: false
+    allowed-content-types: image/jpeg,image/png
+    # Sent to the third-party host an image is fetched from, so it identifies this
+    # deployment and gives that host somewhere to complain.
+    user-agent: ads-mcp/1.0
+
+oauth:
+  # Must match the public origin clients reach this server at. A wrong value silently
+  # breaks discovery: clients read it from /.well-known and then talk to the wrong host.
+  issuer: http://localhost:8080
+  access-token-ttl-seconds: 900
+  refresh-token-ttl-days: 90
+  code-ttl-seconds: 120
+  # Empty allows any https redirect_uri to register, which is what the MCP specification
+  # expects of an open registration endpoint. The other checks still apply (https only, no
+  # fragment, no userinfo) and the consent screen shows the user the redirect host.
+  redirect-hosts-allowlist: ""

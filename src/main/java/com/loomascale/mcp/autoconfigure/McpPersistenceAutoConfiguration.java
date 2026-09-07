@@ -7,11 +7,17 @@ import com.loomascale.mcp.oauth.RefreshTokenStore;
 import com.loomascale.mcp.oauth.jdbc.JdbcAuthorizationCodeStore;
 import com.loomascale.mcp.oauth.jdbc.JdbcOAuthClientStore;
 import com.loomascale.mcp.oauth.jdbc.JdbcRefreshTokenStore;
+import com.loomascale.mcp.security.TokenCipher;
+import com.loomascale.mcp.spi.AdsConnectionStore;
+import com.loomascale.mcp.spi.AdsTokenRefresher;
+import com.loomascale.mcp.spi.jdbc.JdbcAdsConnectionStore;
+import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -51,5 +57,25 @@ public class McpPersistenceAutoConfiguration {
   @ConditionalOnMissingBean
   public RefreshTokenStore refreshTokenStore(JdbcTemplate jdbc) {
     return new JdbcRefreshTokenStore(jdbc);
+  }
+
+  // No default for the key. A blank one leaves the cipher unusable rather than encrypting
+  // with something guessable, and the failure surfaces on first use with instructions.
+  @Bean
+  @ConditionalOnMissingBean
+  public TokenCipher tokenCipher(@Value("${mcp.token-encryption-key:}") String base64Key) {
+    return new TokenCipher(base64Key);
+  }
+
+  // The built-in credential store, so that supplying credentials does not require
+  // implementing an interface first. Replaced wholesale by declaring your own bean.
+  @Bean
+  @ConditionalOnMissingBean
+  public AdsConnectionStore adsConnectionStore(
+      JdbcTemplate jdbc,
+      TokenCipher cipher,
+      ObjectMapper objectMapper,
+      List<AdsTokenRefresher> refreshers) {
+    return new JdbcAdsConnectionStore(jdbc, cipher, objectMapper, refreshers);
   }
 }

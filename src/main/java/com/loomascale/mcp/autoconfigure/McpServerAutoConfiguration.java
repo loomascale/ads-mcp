@@ -131,11 +131,26 @@ public class McpServerAutoConfiguration {
     return new McpController(accessTokenService, oauthProperties, protocolService, objectMapper);
   }
 
-  // Marker so a consumer can tell whether the consent URL points at the bundled page or
-  // somewhere else, without reading configuration itself.
   @Bean
   @ConditionalOnMissingBean
   public ConsentUrlResolver consentUrlResolver(McpProperties properties) {
     return properties.toConsentUrlResolver();
+  }
+
+  // Runs last, so its report reflects the beans that were actually selected — in
+  // particular whether the built-in credential store is in use or the host replaced it.
+  @Bean
+  public McpStartupCheck mcpStartupCheck(
+      com.loomascale.mcp.oauth.OAuthProperties oauthProperties,
+      McpProperties mcpProperties,
+      org.springframework.beans.factory.ObjectProvider<com.loomascale.mcp.security.TokenCipher>
+          tokenCipher,
+      com.loomascale.mcp.spi.AdsConnectionStore connectionStore) {
+    com.loomascale.mcp.security.TokenCipher cipher = tokenCipher.getIfAvailable();
+    return new McpStartupCheck(
+        oauthProperties,
+        mcpProperties,
+        cipher != null && cipher.isConfigured(),
+        connectionStore instanceof com.loomascale.mcp.spi.jdbc.JdbcAdsConnectionStore);
   }
 }

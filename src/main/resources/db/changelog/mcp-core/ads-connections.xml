@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+    logicalFilePath="db/changelog/mcp-core/ads-connections.xml">
+
+  <!--
+    Storage for the BUILT-IN connection store only.
+
+    Included separately from mcp-core-master.xml on purpose: a deployment that supplies its
+    own AdsConnectionStore (because it already has a connections table) should not have
+    this one created alongside it. Include it explicitly if you use the built-in store:
+
+      <include file="db/changelog/mcp-core/ads-connections.xml"/>
+  -->
+  <changeSet id="mcp-core-010-ads-connections" author="mcp-core">
+    <preConditions onFail="MARK_RAN">
+      <not><tableExists tableName="mcp_ads_connections"/></not>
+    </preConditions>
+    <createTable tableName="mcp_ads_connections">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- A string rather than an enum column: a new platform must not need a migration,
+           and the set of platforms is defined by which modules are on the classpath. -->
+      <column name="platform_key" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="state" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- base64(iv || ciphertext || tag), AES-256-GCM. TEXT because a platform token can
+           be well over a kilobyte. -->
+      <column name="access_token_enc" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refresh_token_enc" type="TEXT"/>
+      <column name="token_expires_at" type="TIMESTAMP WITH TIME ZONE"/>
+      <!-- What the provider actually granted, which is not what was requested: users can
+           deselect individual permissions on a consent screen. -->
+      <column name="granted_scopes" type="TEXT"/>
+      <column name="selected_target_id" type="VARCHAR(64)"/>
+      <!-- JSON array of {id, name, currency, loginHintEnc}. The login hint is encrypted
+           inside the snapshot because it can be a page access token. -->
+      <column name="targets_json" type="TEXT"/>
+      <!-- Spend guardrails, in minor units of the account currency. Null means "use the
+           configured default" rather than zero. -->
+      <column name="max_daily_budget_minor" type="BIGINT"/>
+      <column name="max_account_budget_minor" type="BIGINT"/>
+      <column name="default_page_id" type="VARCHAR(64)"/>
+      <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <!-- One connection per user per platform, which is what find() assumes. -->
+    <addUniqueConstraint tableName="mcp_ads_connections"
+                         columnNames="user_id, platform_key"
+                         constraintName="uq_mcp_ads_connections_user_platform"/>
+  </changeSet>
+</databaseChangeLog>
