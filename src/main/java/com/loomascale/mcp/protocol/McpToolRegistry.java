@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 // Collects all AdsTool beans and builds the tools/list payload. Mirrors
 // SocialProviderRegistry: adding a tool = adding a @Component, nothing else.
 @Slf4j
-@Component
 public class McpToolRegistry {
 
   private final Map<String, AdsTool> tools;

@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 // Separate @Component rather than a static helper so the tools' unit tests can stub it
 // instead of carrying real image bytes.
 @Slf4j
-@Component
 public class ImageDimensionReader {
 
   // A crafted header can claim any size. Beyond this the claim is not plausible for an ad

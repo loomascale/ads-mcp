@@ -2,9 +2,7 @@ package com.loomascale.mcp.security;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SystemHostResolver implements HostResolver {
 
   @Override

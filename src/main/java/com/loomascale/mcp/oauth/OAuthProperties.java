@@ -4,17 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-// Config for the minimal OAuth 2.1 authorization server that fronts the MCP
-// endpoint. The access-token signing secret is env-only (no committed default)
-// and MUST be distinct from jwt.secret so login tokens and MCP tokens are never
-// interchangeable.
+// Config for the minimal OAuth 2.1 authorization server that fronts the MCP endpoint.
+//
+// The access-token signing secret has no default and must come from the environment. It
+// must also be distinct from any other signing key the host uses, so that a token minted
+// for one purpose can never be presented as a token for another.
 @Getter
-@Component
 public class OAuthProperties {
 
-  @Value("${oauth.issuer:https://api.loomascale.com}")
+  // No sensible default: the issuer must match the public origin this server is
+  // reached at, and a wrong one silently breaks client discovery.
+  @Value("${oauth.issuer:http://localhost:8080}")
   private String issuer;
 
   @Value("${oauth.access-token-secret:}")

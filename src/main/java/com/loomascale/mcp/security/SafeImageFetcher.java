@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 // Fetches an image from a URL supplied by an assistant, for upload to a Meta ad
 // account. Every rule here exists because the URL is attacker-controllable.
@@ -38,7 +37,6 @@ import org.springframework.stereotype.Component;
 // Note that ImageDownloadService and CheckUrlController make the same kind of
 // outbound fetch with none of these checks; they should migrate onto this policy.
 @Slf4j
-@Component
 public class SafeImageFetcher {
 
   private static final byte[] JPEG_MAGIC = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};

@@ -1,7 +1,6 @@
 package com.loomascale.mcp.oauth;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 // bean so REQUIRES_NEW is honored via the Spring proxy: the reuse-detection path
 // must commit the revoke even though the caller then throws invalid_grant (which
 // rolls the caller's transaction back).
-@Component
 @RequiredArgsConstructor
 public class RefreshTokenFamilyRevoker {
 

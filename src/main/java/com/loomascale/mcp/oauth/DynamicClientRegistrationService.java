@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 // RFC 7591 Dynamic Client Registration for MCP clients (ChatGPT, Claude, ...). Open
 // per the MCP spec: any https redirect_uri may register unless OAUTH_REDIRECT_HOSTS
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 // fragment and no userinfo, the payload is size-capped, registration is rate-limited
 // per IP, and the consent screen shows the user which host the code will be sent to.
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class DynamicClientRegistrationService {
 

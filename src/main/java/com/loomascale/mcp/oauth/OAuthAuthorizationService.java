@@ -14,14 +14,12 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 // The /oauth/authorize half of the flow. Validates the request, parks it in a
 // short-lived pending cache keyed by request_id, and sends the browser to the
 // frontend consent page. On approve, mints a single-use code bound to
 // client + redirect_uri + PKCE challenge.
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class OAuthAuthorizationService {
 

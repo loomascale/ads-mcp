@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 // Decides whether this server is willing to make an HTTP request to a URL that
 // arrived from outside — today the creative image URL an assistant passes to
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component;
 // Rejection messages name the host and never the resolved address, so a caller
 // cannot use this as an oracle for internal network topology.
 @Slf4j
-@Component
 public class OutboundUrlPolicy {
 
   private static final int MAX_URL_LENGTH = 2048;

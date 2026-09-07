@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+    logicalFilePath="db/changelog/mcp-core/oauth-authorization-codes.xml">
+
+  <changeSet id="mcp-core-002-oauth-authorization-codes" author="mcp-core">
+    <preConditions onFail="MARK_RAN">
+      <not><tableExists tableName="oauth_authorization_codes"/></not>
+    </preConditions>
+    <createTable tableName="oauth_authorization_codes">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <!-- Only the hash is stored: a leaked row must not be redeemable. UNIQUE also makes
+           a duplicate insert impossible, so the single-use claim has exactly one row to
+           contend over. -->
+      <column name="code_hash" type="VARCHAR(64)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="client_id" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="redirect_uri" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="scope" type="TEXT"/>
+      <column name="code_challenge" type="VARCHAR(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="code_challenge_method" type="VARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- RFC 8707: the protected resource the code was requested for, so a code minted
+           for one resource cannot be exchanged for a token aimed at another. -->
+      <column name="resource" type="TEXT"/>
+      <column name="expires_at" type="TIMESTAMP WITH TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <!-- Null until redeemed. The conditional UPDATE on this column is what makes the
+           code single-use under concurrency. -->
+      <column name="used_at" type="TIMESTAMP WITH TIME ZONE"/>
+      <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

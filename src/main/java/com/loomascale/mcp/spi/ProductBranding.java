@@ -6,7 +6,7 @@ package com.loomascale.mcp.spi;
 // hosted service supplies its product name and locale-aware dashboard links.
 //
 // Tool text must never hardcode a brand or a host. A self-hoster who reads
-// "Reconnect at https://ai.loomascale.com/dashboard/connections" has been handed an
+// "Reconnect at https://someone-elses-product.example.com/connections" has been handed an
 // instruction they cannot act on.
 public interface ProductBranding {
 

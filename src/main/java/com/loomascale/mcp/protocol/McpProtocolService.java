@@ -16,12 +16,10 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 // Minimal JSON-RPC 2.0 handler for the MCP streamable-HTTP endpoint. Stateless:
 // each POST is initialize | notifications/* | tools/list | tools/call | ping.
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class McpProtocolService {
 

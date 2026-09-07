@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 // Shared preconditions for every ads tool: a healthy connection on the tool's platform,
 // with the scopes the tool needs. Failures throw McpToolException so the model sees an
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component;
 // Billing is not checked here — QuotaPolicy enforces any allowance centrally in
 // McpProtocolService, so paid and free users share these gates.
 @Slf4j
-@Component
 public class McpAuthGate {
 
   private final AdsConnectionStore connectionStore;

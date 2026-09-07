@@ -11,14 +11,12 @@ import java.util.Set;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 // Issues and validates MCP access tokens (JWT). Signed with oauth.access-token-secret,
 // which is DISTINCT from jwt.secret so a leaked login token can never authorize an
 // MCP call and vice versa. token_use=mcp_access + aud binding are belt-and-suspenders
 // on top of the separate key.
 @Slf4j
-@Service
 public class OAuthAccessTokenService {
 
   public static final String TOKEN_USE = "mcp_access";
