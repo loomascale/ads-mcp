@@ -60,5 +60,5 @@ ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
 
 LABEL org.opencontainers.image.title="google-ads-mcp" \
       org.opencontainers.image.description="Self-hostable MCP server for the Google Ads API" \
-      org.opencontainers.image.source="https://github.com/loomascale/google-ads-mcp" \
+      org.opencontainers.image.source="https://github.com/loomascale/ads-mcp" \
       org.opencontainers.image.licenses="MIT"

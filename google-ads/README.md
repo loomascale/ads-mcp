@@ -42,7 +42,7 @@ Read this before the quick start — money is involved.
 ## Quick start
 
 ```bash
-git clone https://github.com/loomascale/google-ads-mcp && cd google-ads-mcp
+git clone https://github.com/loomascale/ads-mcp && cd ads-mcp
 cp .env.example .env && $EDITOR .env      # every value is documented in place
 docker compose up
 ```
@@ -133,7 +133,7 @@ to talk to Google Ads:
 ```
 
 The tools and server are `google-ads-mcp`, built on
-[mcp-core](https://github.com/loomascale/mcp-core), which supplies the protocol layer and
+[mcp-core](../mcp-core/README.md), which supplies the protocol layer and
 the OAuth 2.1 authorization server. Every extension point there — credentials, quota,
 branding, consent, audit — is replaceable by declaring a bean.
 
