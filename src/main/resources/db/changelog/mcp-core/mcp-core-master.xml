@@ -28,4 +28,5 @@
   <include file="db/changelog/mcp-core/oauth-clients.xml"/>
   <include file="db/changelog/mcp-core/oauth-authorization-codes.xml"/>
   <include file="db/changelog/mcp-core/oauth-refresh-tokens.xml"/>
+  <include file="db/changelog/mcp-core/write-audit.xml"/>
 </databaseChangeLog>

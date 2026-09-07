@@ -1,6 +1,8 @@
 package com.loomascale.mcp.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loomascale.mcp.audit.McpWriteAuditService;
+import com.loomascale.mcp.audit.WriteAuditStore;
 import com.loomascale.mcp.consent.ConsentPageRenderer;
 import com.loomascale.mcp.consent.ConsentUrlResolver;
 import com.loomascale.mcp.consent.DefaultConsentPageRenderer;
@@ -8,6 +10,7 @@ import com.loomascale.mcp.consent.ResourceOwnerAuthenticator;
 import com.loomascale.mcp.defaults.LoggingAlertSink;
 import com.loomascale.mcp.defaults.LoggingToolCallObserver;
 import com.loomascale.mcp.defaults.UnlimitedQuotaPolicy;
+import com.loomascale.mcp.guardrail.BudgetGuardrailService;
 import com.loomascale.mcp.protocol.McpProtocolService;
 import com.loomascale.mcp.protocol.McpToolRegistry;
 import com.loomascale.mcp.spi.AdsConnectionStore;
@@ -75,6 +78,29 @@ public class McpServerAutoConfiguration {
   @ConditionalOnMissingBean(McpToolCallObserver.class)
   public McpToolCallObserver loggingToolCallObserver() {
     return new LoggingToolCallObserver();
+  }
+
+  // Both of these are shared by every platform module: the audit log because the
+  // activation allowlist must be one record, and the guardrail because a spend cap that
+  // differed per platform would not be a cap.
+  @Bean
+  @ConditionalOnMissingBean
+  public McpWriteAuditService mcpWriteAuditService(WriteAuditStore store, McpAlertSink alertSink) {
+    return new McpWriteAuditService(store, alertSink);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public BudgetGuardrailService budgetGuardrailService(
+      @org.springframework.beans.factory.annotation.Value(
+              "${mcp.default-max-daily-budget-cents:10000}")
+          long defaultMaxDailyBudgetCents,
+      @org.springframework.beans.factory.annotation.Value(
+              "${mcp.default-max-account-budget-cents:100000}")
+          long defaultMaxAccountBudgetCents,
+      ProductBranding branding) {
+    return new BudgetGuardrailService(
+        defaultMaxDailyBudgetCents, defaultMaxAccountBudgetCents, branding);
   }
 
   @Bean

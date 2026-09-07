@@ -1,6 +1,8 @@
 package com.loomascale.mcp.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loomascale.mcp.audit.WriteAuditStore;
+import com.loomascale.mcp.audit.jdbc.JdbcWriteAuditStore;
 import com.loomascale.mcp.oauth.AuthorizationCodeStore;
 import com.loomascale.mcp.oauth.OAuthClientStore;
 import com.loomascale.mcp.oauth.RefreshTokenStore;
@@ -57,6 +59,12 @@ public class McpPersistenceAutoConfiguration {
   @ConditionalOnMissingBean
   public RefreshTokenStore refreshTokenStore(JdbcTemplate jdbc) {
     return new JdbcRefreshTokenStore(jdbc);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public WriteAuditStore writeAuditStore(JdbcTemplate jdbc) {
+    return new JdbcWriteAuditStore(jdbc);
   }
 
   // No default for the key. A blank one leaves the cipher unusable rather than encrypting

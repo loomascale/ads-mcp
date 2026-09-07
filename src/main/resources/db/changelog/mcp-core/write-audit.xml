@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+    logicalFilePath="db/changelog/mcp-core/write-audit.xml">
+
+  <changeSet id="mcp-core-004-write-audit" author="mcp-core">
+    <preConditions onFail="MARK_RAN">
+      <not><tableExists tableName="mcp_write_audit"/></not>
+    </preConditions>
+    <createTable tableName="mcp_write_audit">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tool" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- Recorded rather than inferred from the tool name: a library cannot know any
+           platform's tool names, and guessing would silently break the activation
+           allowlist for any newly added create tool. -->
+      <column name="kind" type="VARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="args_json" type="TEXT"/>
+      <column name="object_id" type="VARCHAR(64)"/>
+      <column name="success" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="error" type="TEXT"/>
+      <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <!-- The activation allowlist looks up (user, object, kind); the daily caps look up
+         (user, tool, created_at). Both are on the hot path of every write tool. -->
+    <createIndex tableName="mcp_write_audit" indexName="idx_mcp_write_audit_object">
+      <column name="user_id"/>
+      <column name="object_id"/>
+    </createIndex>
+    <createIndex tableName="mcp_write_audit" indexName="idx_mcp_write_audit_tool_time">
+      <column name="user_id"/>
+      <column name="tool"/>
+      <column name="created_at"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>
