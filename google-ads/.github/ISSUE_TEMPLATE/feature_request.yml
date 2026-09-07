@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a capability or an extension point
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do that you cannot do today?
+      description: Describe the goal rather than the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What are you doing instead right now?
+      description: >
+        Many requests turn out to be answerable by replacing an existing bean — see the
+        extension points table in the README. If you tried that, say what did not fit.
+    validations:
+      required: true

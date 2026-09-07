@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.loomascale</groupId>
+    <artifactId>google-ads-mcp-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>google-ads-client</artifactId>
+  <packaging>jar</packaging>
+
+  <name>google-ads-client</name>
+  <description>A hand-rolled Google Ads API client: GAQL search and the mutate services
+    over REST, with typed results. No Spring, no MCP — usable on its own by anything that
+    needs to talk to the Google Ads API.</description>
+
+  <!--
+    Deliberately a separate artifact from the server.
+
+    An application may need this client for something that has nothing to do with MCP —
+    uploading offline conversions, for example. If the client only shipped inside the
+    runnable server, that application would have to depend on 44 tools and an
+    autoconfiguration to get an HTTP client. Splitting also keeps application.yml and the
+    Liquibase changelog out of its classpath, where they would collide with its own.
+  -->
+  <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

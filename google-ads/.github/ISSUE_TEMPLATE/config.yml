@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/loomascale/google-ads-mcp/security/advisories/new
+    about: Report privately. Never in a public issue.
+  - name: Questions and setup help
+    url: https://github.com/loomascale/google-ads-mcp/discussions
+    about: Connecting a client, OAuth configuration, schema setup.

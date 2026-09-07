@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# Defaults for the Google Ads MCP server. This file is committed and is in every clone.
+#
+# THERE ARE NO CREDENTIALS HERE AND THERE NEVER WILL BE.
+#
+# Every secret is read from the environment with no fallback, and the server refuses to
+# start when a required one is missing, naming the variable. Never give a placeholder a
+# non-empty fallback value in this file: it reads as safe and it is a committed literal.
+# Two gates fail the build if you try. See CONTRIBUTING.md.
+#
+# Secrets, and where they are bound instead:
+#   GOOGLE_ADS_CLIENT_ID / _CLIENT_SECRET / _DEVELOPER_TOKEN   GoogleOAuthConfig
+#   OAUTH_ACCESS_TOKEN_SECRET                                  mcp-core, OAuthProperties
+#   MCP_TOKEN_ENCRYPTION_KEY                                   mcp-core
+#   MCP_CONSENT_OPERATOR_PASSWORD                              mcp-core
+# .env.example lists every one with the command to generate it.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: google-ads-mcp
+  datasource:
+    # Bare placeholders, no colon: an unset datasource must fail resolution outright
+    # rather than fall back to something that looks like it works.
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+  liquibase:
+    change-log: classpath:db/changelog/google-ads-mcp-master.xml
+
+google-ads:
+  # Google versions the API in the URL path and switches old versions off on a published
+  # schedule, so this must be changeable without waiting for a release.
+  api-version: v21
+  # Where Google sends the browser back. Must exactly match a redirect URI registered on
+  # the OAuth client, or Google refuses with redirect_uri_mismatch.
+  redirect-uri: http://localhost:8080/connect/google/callback
+
+mcp:
+  branding:
+    product-name: this server
+    server-name: google-ads-mcp
+    connections-url: http://localhost:8080/connections
+  # Spend guardrails, in minor units of the ad account's own currency. Lower these before
+  # pointing the server at a live account: they are the last line of defence between a
+  # model and real money.
+  default-max-daily-budget-cents: 10000
+  default-max-account-budget-cents: 100000
+
+logging:
+  level:
+    com.loomascale.googleads: info
