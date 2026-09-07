@@ -12,7 +12,7 @@ spring:
 
 oauth:
   issuer: http://localhost:8080
-  access-token-secret: dGVzdC1vbmx5LXNlY3JldC1mb3ItdW5pdC10ZXN0cy1uZXZlci1yZWFs
+  access-token-secret: test-only-not-a-real-secret-do-not-use-anywhere-0000
 
 mcp:
   branding:

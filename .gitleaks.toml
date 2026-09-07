@@ -75,6 +75,17 @@ regex = '''\b\d{8,10}:[A-Za-z0-9_-]{35}\b'''
 id = "aes-256-base64-key"
 description = "base64 32-byte key assigned to an encryption-key property"
 regex = '''(?i)(encryption[_-]?key|token[_-]?enc[a-z_-]*)\s*[:=]\s*['"]?[A-Za-z0-9+/]{43}=['"]?'''
+[rules.allowlist]
+# This rule matches on property NAME and value SHAPE, so no test value can avoid it: any
+# valid 32-byte base64 key assigned to an encryption-key property matches by construction.
+# The one exemption is the documented test fixture, listed as an exact literal rather than
+# by path — a real key in this same property still fails, which a path exemption would not.
+# It is base64 of "test-key-not-real-not-a-secret!!".
+#
+# regexTarget = "match" because this rule has no capture group, so its "secret" is the
+# whole `key: value` text rather than the value alone.
+regexTarget = "match"
+regexes = ['''dGVzdC1rZXktbm90LXJlYWwtbm90LWEtc2VjcmV0ISE=''']
 
 [[rules]]
 id = "private-key-block"
@@ -98,7 +109,18 @@ paths = [
   '''(^|/)\.gitleaks\.toml$''',   # this file's own example patterns
   '''(^|/)mvnw(\.cmd)?$''',
   '''(^|/)\.mvn/wrapper/''',
+  # Build output. Already gitignored, but `gitleaks dir` walks the filesystem rather than
+  # the index, so it would otherwise scan copies of files it has already scanned in place
+  # and report every finding twice.
+  '''(^|/)target/''',
 ]
 regexes = [
   '''(?i)(YOUR_[A-Z_]+|CHANGE_?ME|REPLACE_?ME|example\.com|xxxxxxxx)''',
+  # Test fixtures say so in the value itself, which is the point: a reader of the file and
+  # a scanner can both tell at a glance that it was never a credential.
+  '''(?i)(test-only-not-a-real-secret|not-a-secret|test-key-not-real|test-operator-password)''',
+  # The encryption-key fixture has to be valid base64 of exactly 32 bytes, so its plaintext
+  # disclaimer is not visible to a scanner. Exempted as an exact literal, never by path: a
+  # real key in the same file and property still fails.
+  '''dGVzdC1rZXktbm90LXJlYWwtbm90LWEtc2VjcmV0ISE=''',
 ]

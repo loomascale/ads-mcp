@@ -1,0 +1,30 @@
+# Reviewed and accepted findings, pinned by fingerprint.
+#
+# A fingerprint is commit:file:rule:line, so each entry exempts exactly one finding in one
+# historical commit. A NEW secret in the same file, or the same value moving to another
+# line, still fails the gate. That is why this file is used rather than a path exemption in
+# .gitleaks.toml, which would blind the scanner to a whole directory forever.
+#
+# Every entry below was verified by decoding the value. None was ever a live credential,
+# so nothing here needed rotating.
+#
+# Do not add to this file to make a build pass. If a finding is real, rotate the credential
+# and rewrite the history that carries it.
+
+# --- Test fixtures ---------------------------------------------------------
+# Both values are deliberately fake and say so once decoded:
+#   dGVzdC1vbmx5...  ->  "test-only-secret-for-unit-tests-never-real"
+#   MDEyMzQ1...      ->  "0123456789abcdef0123456789abcdef"
+# They tripped entropy rules because they were base64, not because they were secret. The
+# current fixtures are plain readable strings for exactly this reason; these entries cover
+# the commits made before that change.
+13edbab4de3353469d0aecce24adb798da4c71ec:src/test/resources/application-test.yml:generic-api-key:15
+32f7685204daf99d2720f428a4c72d4b41e02187:server/src/test/resources/application-test.yml:generic-api-key:20
+32f7685204daf99d2720f428a4c72d4b41e02187:server/src/test/resources/application-test.yml:generic-api-key:23
+32f7685204daf99d2720f428a4c72d4b41e02187:server/src/test/resources/application-test.yml:aes-256-base64-key:23
+
+# --- The gate catching its own documentation -------------------------------
+# application-example.yml explained the rule "never write ${VAR:some-value}" by quoting
+# that shape, which the spring-placeholder-with-default rule then matched. The prose was
+# reworded in a later commit; this covers the commit that still contains the example.
+ef8eda06b07a3dcbd73fa3a1d4326b7186da9677:application-example.yml:spring-placeholder-with-default:15

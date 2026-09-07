@@ -17,9 +17,11 @@ google-ads:
 
 oauth:
   issuer: http://localhost:8080
-  access-token-secret: dGVzdC1vbmx5LXNlY3JldC1mb3ItdW5pdC10ZXN0cy1uZXZlci1yZWFs
+  access-token-secret: test-only-not-a-real-secret-do-not-use-anywhere-0000
 
 mcp:
-  token-encryption-key: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  # base64 of "test-key-not-real-not-a-secret!!" — exactly 32 bytes, as TokenCipher
+  # requires. Deliberately readable when decoded, so nobody mistakes it for real.
+  token-encryption-key: dGVzdC1rZXktbm90LXJlYWwtbm90LWEtc2VjcmV0ISE=
   consent:
     operator-password: test-operator-password
