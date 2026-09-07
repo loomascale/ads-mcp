@@ -40,7 +40,7 @@ jobs:
             type=semver,pattern={{version}}
             type=sha
 
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           # Context is the repository root: mcp-core is built from source in the same
           # reactor rather than resolved as a published artifact.
