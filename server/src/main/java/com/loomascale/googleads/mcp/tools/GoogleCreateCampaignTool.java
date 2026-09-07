@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 // Creates a full Google Search campaign (budget → campaign → ad group →
 // responsive search ad → keywords), ALWAYS PAUSED. The tool schema has no status
 // field, so the model cannot make anything live — activation is a separate,
-// guarded tool. The Google twin of meta_create_campaign.
+// guarded tool.
 @Slf4j
 @Component
 @RequiredArgsConstructor

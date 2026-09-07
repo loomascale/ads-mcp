@@ -23,7 +23,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// Single on/off switch for Google ad objects — the Google twin of meta_set_status.
+// Single on/off switch for Google ad objects.
 // Unlike Meta ids, Google ids are only unique per resource type, so the caller
 // names the type. Resuming re-checks the governing campaign budget against the
 // user's cap first.

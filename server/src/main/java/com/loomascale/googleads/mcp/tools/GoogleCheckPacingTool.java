@@ -22,10 +22,11 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// Derived health check for Google Ads: today's spend per enabled campaign vs its
-// daily budget, zero-delivery enabled campaigns, and the account-wide cap — the
-// Google twin of meta_check_pacing. (Google's standard delivery can spend up to 2x the
-// daily budget on a single day, so over_pacing here means "watch this", not a bug.)
+// Derived health check for Google Ads: today's spend per enabled campaign against its
+// daily budget, enabled campaigns delivering nothing, and the account-wide cap.
+//
+// Google's standard delivery can spend up to twice the daily budget on a single day, so
+// over_pacing here means "watch this", not "something is broken".
 @Component
 @RequiredArgsConstructor
 public class GoogleCheckPacingTool implements AdsTool {

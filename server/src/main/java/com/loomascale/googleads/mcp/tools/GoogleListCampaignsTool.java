@@ -22,8 +22,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// Lists Google Ads campaigns (and their ad groups) with status and budgets —
-// the Google twin of meta_list_campaigns.
+// Lists Google Ads campaigns (and their ad groups) with status and budgets.
 @Component
 @RequiredArgsConstructor
 public class GoogleListCampaignsTool implements AdsTool {

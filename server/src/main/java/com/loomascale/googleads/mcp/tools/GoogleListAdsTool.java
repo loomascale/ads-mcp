@@ -18,8 +18,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// Lists individual Google ads with their policy approval status — the Google
-// twin of meta_list_ads.
+// Lists individual Google ads with their policy approval status.
 @Component
 @RequiredArgsConstructor
 public class GoogleListAdsTool implements AdsTool {

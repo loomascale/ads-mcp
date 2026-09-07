@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 // The explicit go-live for Google campaigns. Only activates campaigns this server
 // itself created (per the audit log), and re-validates the daily budget against
-// the cap before spend starts — the Google twin of meta_activate_campaign.
+// the cap before spend starts.
 @Component
 @RequiredArgsConstructor
 public class GoogleActivateCampaignTool implements AdsTool {

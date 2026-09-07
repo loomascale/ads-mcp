@@ -1,0 +1,48 @@
+# docker compose up  ->  a working MCP server on http://localhost:8080/mcp against a local
+# Postgres. Copy .env.example to .env and fill it in first.
+name: google-ads-mcp
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: googleadsmcp
+      POSTGRES_USER: googleadsmcp
+      # No default. An unset password must fail the compose file rather than quietly
+      # start a database with a guessable one.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Deliberately not published. Uncomment only if you need psql from the host: a
+    # Postgres on 0.0.0.0:5432 holding encrypted ad credentials is not a default.
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U googleadsmcp -d googleadsmcp"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mcp:
+    build: .
+    image: ghcr.io/loomascale/google-ads-mcp:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/googleadsmcp
+      SPRING_DATASOURCE_USERNAME: googleadsmcp
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      # Bound to loopback deliberately. This server holds credentials that spend money and
+      # its only authentication is a bearer token, so exposing it on 0.0.0.0 should be a
+      # decision rather than a default. To reach it from ChatGPT, put it behind a reverse
+      # proxy with TLS, or run:  cloudflared tunnel --url http://localhost:8080
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  pgdata:

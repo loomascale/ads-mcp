@@ -22,8 +22,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// Performance metrics at account, campaign, ad group, or keyword level — the Google
-// twin of meta_get_insights. Money is in minor units of the account currency.
+// Performance metrics at account, campaign, ad group or keyword level. Money is in
+// minor units of the account currency.
 @Component
 @RequiredArgsConstructor
 public class GoogleGetInsightsTool implements AdsTool {
