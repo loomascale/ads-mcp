@@ -1,0 +1,11 @@
+# Overlay that builds the server from source instead of pulling the published image.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up --build
+#
+# The build context is the repository root, because mcp-core is compiled from source in
+# the same Maven reactor rather than resolved as a published artifact.
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: google-ads/server/Dockerfile

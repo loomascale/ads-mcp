@@ -39,7 +39,10 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
+          # Context is the repository root: mcp-core is built from source in the same
+          # reactor rather than resolved as a published artifact.
           context: .
+          file: google-ads/server/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

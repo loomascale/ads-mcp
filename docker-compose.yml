@@ -25,7 +25,9 @@ services:
       retries: 20
 
   mcp:
-    build: .
+    # Pulls the published image, so running this needs no JDK, no Maven and no source
+    # build. To build from source instead — for auditing or local changes — use:
+    #   docker compose -f docker-compose.yml -f docker-compose.build.yml up
     image: ghcr.io/loomascale/google-ads-mcp:latest
     restart: unless-stopped
     depends_on:

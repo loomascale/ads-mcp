@@ -4,21 +4,30 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# POMs first, so the dependency layer is cached independently of source changes: a
-# one-line Java edit then rebuilds in seconds rather than re-resolving everything.
+# The build context is the REPOSITORY ROOT, not this directory: mcp-core is built from
+# source in the same reactor, so no published artifact is needed. Build with
+#   docker build -f google-ads/server/Dockerfile .
+# or let docker-compose do it.
+#
+# POMs first, so the dependency layer caches independently of source changes: a one-line
+# Java edit then rebuilds in seconds instead of re-resolving everything.
 COPY pom.xml .
-COPY client/pom.xml client/
-COPY server/pom.xml server/
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp dependency:go-offline || true
+COPY mcp-core/pom.xml mcp-core/
+COPY google-ads/pom.xml google-ads/
+COPY google-ads/client/pom.xml google-ads/client/
+COPY google-ads/server/pom.xml google-ads/server/
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -pl google-ads/server -am dependency:go-offline || true
 
-COPY client/src client/src
-COPY server/src server/src
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests package
+COPY mcp-core/src mcp-core/src
+COPY google-ads/client/src google-ads/client/src
+COPY google-ads/server/src google-ads/server/src
+# -am builds mcp-core and the client too; -DskipTests because CI already ran them.
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -pl google-ads/server -am -DskipTests package
 
 # Explode the executable jar into Spring Boot's layers, so dependencies (which rarely
 # change) land in a lower image layer than application classes (which always do). A
 # redeploy then pushes kilobytes instead of the whole fat jar.
-RUN java -Djarmode=tools -jar server/target/*-exec.jar extract --layers --launcher --destination /extracted
+RUN java -Djarmode=tools -jar google-ads/server/target/*-exec.jar extract --layers --launcher --destination /extracted
 
 # ---- runtime ---------------------------------------------------------------
 FROM eclipse-temurin:21-jre-noble AS runtime

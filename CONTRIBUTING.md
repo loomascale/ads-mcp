@@ -35,11 +35,28 @@ Do not add a path exemption — path exemptions are how an allowlist rots.
 `git fetch` puts that repository's commits into this object database, where they survive
 in `refs/remotes` even if never merged.
 
+## Layout
+
+One repository, one version, so a change spanning the core and a platform is one commit
+and one build:
+
+```
+mcp-core/            protocol, OAuth 2.1 server, shared ads abstractions
+google-ads/client/   Google Ads API client — no Spring, no MCP
+google-ads/server/   the runnable MCP server and its 42 tools
+```
+
+`google-ads/server` depends on `mcp-core` at `${project.version}`, so it resolves inside
+the reactor. A fresh clone builds with nothing published anywhere.
+
 ## Build
 
 ```bash
-./mvnw verify           # compile, test, and check formatting
+./mvnw verify           # every module: compile, test, check formatting
 ./mvnw spotless:apply   # format
+
+# just one module and what it needs
+./mvnw -pl google-ads/server -am verify
 ```
 
 Formatting is google-java-format via spotless. CI runs `spotless:check` rather than
@@ -47,8 +64,8 @@ Formatting is google-java-format via spotless. CI runs `spotless:check` rather t
 
 ## Adding a tool
 
-`McpToolRegistry` collects every `AdsTool` bean automatically. Two things do not follow
-automatically, and both matter to a client rather than to you:
+`McpToolRegistry` collects every `AdsTool` bean automatically. Three things do not follow
+automatically, and all of them matter to a client rather than to you:
 
 **`outputSchema()` must describe what `execute()` actually puts into `structured`.**
 Declaring a field is a promise: every non-error path has to write it, so only fields
@@ -60,21 +77,25 @@ before acting. `readOnlyHint=true` means the tool performs no writes at all.
 `destructiveHint=true` for anything that affects spend. A wrong value here spends
 somebody's money without a prompt.
 
+**A write tool must record a `WriteKind`.** `audit.record(userId, name(), WriteKind.CREATE,
+…)` — and `CREATE` specifically is what makes an object activatable later. Get it wrong and
+either a campaign can never be activated, or one this server did not create can be.
+
 ## Testing
 
-The test that matters most is `McpCoreEndToEndTest`: it boots an application declaring
-only a tool and drives the whole documented flow over HTTP. Unit tests of each service
-pass happily while the wiring is broken, which is the failure that counts for a library
-whose entire promise is "add the dependency". If you change wiring, that test is the
-evidence.
+The test that matters most is `GoogleAdsMcpBootTest`: it boots the real application
+against H2 and asserts the tool **count**, not merely that the context loads. The failure
+it guards against is silent — if component scanning does not reach the tools, the registry
+reports zero, every unit test still passes, the server starts cleanly, and the model is
+simply told this server can do nothing.
 
-Two harness details worth knowing before you fight them:
+It also pins tool-name uniqueness, `outputSchema` validity, and that no read-only tool
+claims to be destructive or asks for write scope.
 
-- Redirect following is **off**. The redirects are the thing under test, and a following
-  client chases the configured issuer host instead of the random test port.
-- The `Origin` check is verified with the JDK HTTP client, because `HttpURLConnection`
-  silently drops an `Origin` header it did not set — the test would otherwise pass for the
-  wrong reason.
+Testing against Google itself is not part of the suite: it needs an approved developer
+token and a real account, and a test that spends money is not a test. Verify changes to
+the ads client against a Google Ads *test account* by hand, and say in the PR that you
+did.
 
 ## Pull requests
 

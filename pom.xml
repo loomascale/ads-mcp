@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.loomascale</groupId>
+  <artifactId>ads-mcp-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>mcp-core</module>
+    <module>google-ads</module>
+  </modules>
+
+  <name>ads-mcp</name>
+  <description>Self-hostable MCP servers for ad platforms, letting ChatGPT or Claude read
+    and manage real ad accounts with server-side spend guardrails. Contains the shared MCP
+    protocol and OAuth 2.1 core plus one runnable server per platform.</description>
+  <url>https://ai.loomascale.com/oss/ads-mcp</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>andrewpasika</id>
+      <name>Andrii Pasika</name>
+      <url>https://github.com/AndrewPasika</url>
+      <organization>LoomaScale</organization>
+      <organizationUrl>https://ai.loomascale.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/loomascale/ads-mcp.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/loomascale/ads-mcp.git</developerConnection>
+    <url>https://github.com/loomascale/ads-mcp</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/loomascale/ads-mcp/issues</url>
+  </issueManagement>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>21</java.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <spring.boot.version>3.4.2</spring.boot.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <!-- Spring Boot 3.4's BOM pins Mockito/Byte Buddy versions that predate current
+         JDKs; declared before the BOM import so these win and class mocking works. -->
+    <byte-buddy.version>1.17.8</byte-buddy.version>
+    <mockito.version>5.20.0</mockito.version>
+    <spotless.version>2.46.1</spotless.version>
+    <google-java-format.version>1.28.0</google-java-format.version>
+    <!-- Boot 3.4's BOM predates JDK 25 support in Lombok; override so annotation
+         processing actually runs on a current JDK. -->
+    <lombok.version>1.18.44</lombok.version>
+  </properties>
+
+  <!-- No spring-boot-starter-parent: this is a library, not an application, and the
+       parent's repackage/bootJar wiring produces an artifact nobody can depend on. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
+        <configuration>
+          <!-- -parameters keeps constructor parameter names, which Spring needs to bind
+               @Value on Lombok-generated constructors. -->
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+          <!-- Declared explicitly because JDK 23 and later no longer run annotation
+               processors found merely on the classpath: without this, every @Slf4j and
+               @Getter silently produces nothing and the build fails on missing `log`. -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <!-- Bound to `check`, not `apply`: a build must not silently rewrite the tree.
+             Run `./mvnw spotless:apply` to format. -->
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals><goal>check</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <java>
+            <!-- Pinned: google-java-format reaches into javac internals, and the version
+                 Spotless defaults to fails on current JDKs with a NoSuchMethodError on
+                 Log$DeferredDiagnosticHandler. Pinning also keeps formatting stable
+                 across contributors' JDKs. -->
+            <googleJavaFormat>
+              <version>${google-java-format.version}</version>
+            </googleJavaFormat>
+            <removeUnusedImports/>
+          </java>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- Signing and the Central deployment live behind a profile so day-to-day
+         `mvn install` never asks for a GPG passphrase. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals><goal>jar-no-fork</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.11.2</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals><goal>jar</goal></goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- This codebase documents with // comments rather than javadoc tags.
+                   Central requires the javadoc JAR to EXIST, not to be complete, and
+                   doclint would fail a release over missing @param. -->
+              <doclint>none</doclint>
+              <quiet>true</quiet>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.7</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals><goal>sign</goal></goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.7.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <!-- Central is IMMUTABLE: a published version cannot be deleted or
+                   replaced. Land the first releases as a draft and eyeball the file
+                   list in the Portal before publishing by hand. -->
+              <autoPublish>false</autoPublish>
+              <waitUntil>validated</waitUntil>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
