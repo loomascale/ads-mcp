@@ -1,6 +1,5 @@
 package com.loomascale.mcp.spi;
 
-import com.loomascale.mcp.tool.McpToolException;
 import java.util.List;
 import java.util.Optional;
 

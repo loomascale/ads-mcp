@@ -27,13 +27,13 @@ public class JdbcOAuthClientStore implements OAuthClientStore {
 
   private OAuthClient map(ResultSet rs) throws SQLException {
     return new OAuthClient(
-              rs.getString("id"),
-              rs.getString("client_id"),
-              rs.getString("client_name"),
-              readUris(rs.getString("redirect_uris")),
-              rs.getString("token_endpoint_auth_method"),
-              rs.getString("scope"),
-              instant(rs, "created_at"));
+        rs.getString("id"),
+        rs.getString("client_id"),
+        rs.getString("client_name"),
+        readUris(rs.getString("redirect_uris")),
+        rs.getString("token_endpoint_auth_method"),
+        rs.getString("scope"),
+        instant(rs, "created_at"));
   }
 
   // The column holds a JSON array. Kept as JSON rather than a delimited string so that a
@@ -68,7 +68,8 @@ public class JdbcOAuthClientStore implements OAuthClientStore {
 
   @Override
   public Optional<OAuthClient> findByClientId(String clientId) {
-    return jdbc.query(
+    return jdbc
+        .query(
             "select id, client_id, client_name, redirect_uris, token_endpoint_auth_method,"
                 + " scope, created_at from oauth_clients where client_id = ?",
             mapper,

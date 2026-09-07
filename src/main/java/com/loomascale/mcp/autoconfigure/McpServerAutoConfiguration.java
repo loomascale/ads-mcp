@@ -101,7 +101,8 @@ public class McpServerAutoConfiguration {
   @ConditionalOnMissingBean
   public ConsentPageRenderer consentPageRenderer(
       McpProperties properties, ProductBranding branding) {
-    return new DefaultConsentPageRenderer(branding.productName(), properties.getConsent().getPath());
+    return new DefaultConsentPageRenderer(
+        branding.productName(), properties.getConsent().getPath());
   }
 
   @Bean

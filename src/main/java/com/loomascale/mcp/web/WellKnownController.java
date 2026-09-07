@@ -21,15 +21,24 @@ public class WellKnownController {
   public Map<String, Object> authorizationServerMetadata() {
     String issuer = properties.getIssuer();
     return Map.of(
-        "issuer", issuer,
-        "authorization_endpoint", issuer + "/oauth/authorize",
-        "token_endpoint", issuer + "/oauth/token",
-        "registration_endpoint", issuer + "/oauth/register",
-        "response_types_supported", List.of("code"),
-        "grant_types_supported", List.of("authorization_code", "refresh_token"),
-        "code_challenge_methods_supported", List.of("S256"),
-        "token_endpoint_auth_methods_supported", List.of("none"),
-        "scopes_supported", OAuthScopes.SUPPORTED);
+        "issuer",
+        issuer,
+        "authorization_endpoint",
+        issuer + "/oauth/authorize",
+        "token_endpoint",
+        issuer + "/oauth/token",
+        "registration_endpoint",
+        issuer + "/oauth/register",
+        "response_types_supported",
+        List.of("code"),
+        "grant_types_supported",
+        List.of("authorization_code", "refresh_token"),
+        "code_challenge_methods_supported",
+        List.of("S256"),
+        "token_endpoint_auth_methods_supported",
+        List.of("none"),
+        "scopes_supported",
+        OAuthScopes.SUPPORTED);
   }
 
   // Both the bare and the /mcp-suffixed forms — RFC 9728 lets the client derive

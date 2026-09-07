@@ -1,6 +1,5 @@
 package com.loomascale.mcp.security;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 // How wide and tall an image is, without decoding it.
 //

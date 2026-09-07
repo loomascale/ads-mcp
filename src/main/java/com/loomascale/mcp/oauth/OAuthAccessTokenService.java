@@ -103,8 +103,7 @@ public class OAuthAccessTokenService {
     }
   }
 
-  public record AccessTokenClaims(
-      String userId, String clientId, Set<String> scopes, String jti) {}
+  public record AccessTokenClaims(String userId, String clientId, Set<String> scopes, String jti) {}
 
   public static class InvalidTokenException extends RuntimeException {
     public InvalidTokenException(String message) {

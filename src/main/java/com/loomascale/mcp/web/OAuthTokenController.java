@@ -60,8 +60,6 @@ public class OAuthTokenController {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("error", error);
     body.put("error_description", description);
-    return ResponseEntity.badRequest()
-        .header(HttpHeaders.CACHE_CONTROL, "no-store")
-        .body(body);
+    return ResponseEntity.badRequest().header(HttpHeaders.CACHE_CONTROL, "no-store").body(body);
   }
 }

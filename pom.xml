@@ -57,6 +57,7 @@
     <byte-buddy.version>1.17.8</byte-buddy.version>
     <mockito.version>5.20.0</mockito.version>
     <spotless.version>2.46.1</spotless.version>
+    <google-java-format.version>1.28.0</google-java-format.version>
     <!-- Boot 3.4's BOM predates JDK 25 support in Lombok; override so annotation
          processing actually runs on a current JDK. -->
     <lombok.version>1.18.44</lombok.version>
@@ -207,7 +208,13 @@
         </executions>
         <configuration>
           <java>
-            <googleJavaFormat/>
+            <!-- Pinned: google-java-format reaches into javac internals, and the version
+                 Spotless defaults to fails on current JDKs with a NoSuchMethodError on
+                 Log$DeferredDiagnosticHandler. Pinning also keeps formatting stable
+                 across contributors' JDKs. -->
+            <googleJavaFormat>
+              <version>${google-java-format.version}</version>
+            </googleJavaFormat>
             <removeUnusedImports/>
           </java>
         </configuration>

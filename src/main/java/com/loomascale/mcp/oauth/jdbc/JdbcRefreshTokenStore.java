@@ -43,7 +43,8 @@ public class JdbcRefreshTokenStore implements RefreshTokenStore {
 
   @Override
   public Optional<OAuthRefreshToken> findByTokenHash(String tokenHash) {
-    return jdbc.query(
+    return jdbc
+        .query(
             "select " + COLUMNS + " from oauth_refresh_tokens where token_hash = ?",
             MAPPER,
             tokenHash)
@@ -54,7 +55,9 @@ public class JdbcRefreshTokenStore implements RefreshTokenStore {
   @Override
   public void save(OAuthRefreshToken token) {
     jdbc.update(
-        "insert into oauth_refresh_tokens (" + COLUMNS + ")"
+        "insert into oauth_refresh_tokens ("
+            + COLUMNS
+            + ")"
             + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         token.id(),
         token.tokenHash(),

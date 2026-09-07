@@ -1,10 +1,11 @@
 package com.loomascale.mcp.oauth;
 
-import java.time.Instant;import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loomascale.mcp.util.ExpiringCache;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loomascale.mcp.spi.McpAlertSink;
+import com.loomascale.mcp.util.ExpiringCache;
 import java.net.URI;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,6 @@ public class DynamicClientRegistrationService {
     return client;
   }
 
-
   private void validateRedirectUri(String uri) {
     if (uri == null || uri.isBlank()) {
       throw new InvalidRegistrationException("redirect_uri must not be blank");
@@ -112,7 +112,8 @@ public class DynamicClientRegistrationService {
   }
 
   private boolean hostMatches(String host, String allowed) {
-    return host.equalsIgnoreCase(allowed) || host.toLowerCase().endsWith("." + allowed.toLowerCase());
+    return host.equalsIgnoreCase(allowed)
+        || host.toLowerCase().endsWith("." + allowed.toLowerCase());
   }
 
   private void enforceRateLimit(String clientIp) {

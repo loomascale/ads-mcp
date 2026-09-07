@@ -31,7 +31,8 @@ public class OAuthAuthorizationService {
   private final OAuthProperties properties;
   private final ConsentUrlResolver consentUrls;
 
-  // request_id -> pending authorization, 30-min TTL (browser consent window; generous for app reviewers).
+  // request_id -> pending authorization, 30-min TTL (browser consent window; generous for app
+  // reviewers).
   private final ExpiringCache<String, PendingAuthorization> pending =
       new ExpiringCache<>(Duration.ofMinutes(30), 10_000);
 
@@ -97,10 +98,7 @@ public class OAuthAuthorizationService {
       return Optional.empty();
     }
     String clientName =
-        clientStore
-            .findByClientId(p.clientId())
-            .map(OAuthClient::clientName)
-            .orElse(p.clientId());
+        clientStore.findByClientId(p.clientId()).map(OAuthClient::clientName).orElse(p.clientId());
     // Registration is open, so client_name alone proves nothing — show the user the
     // host the authorization code will actually be delivered to.
     return Optional.of(

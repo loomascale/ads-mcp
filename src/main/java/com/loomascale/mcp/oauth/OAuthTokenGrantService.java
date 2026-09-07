@@ -96,8 +96,7 @@ public class OAuthTokenGrantService {
     }
 
     refreshTokenStore.markRotated(stored.id());
-    return issueTokens(
-        stored.userId(), stored.clientId(), stored.scope(), stored.familyId());
+    return issueTokens(stored.userId(), stored.clientId(), stored.scope(), stored.familyId());
   }
 
   private TokenResponse issueTokens(
@@ -118,11 +117,7 @@ public class OAuthTokenGrantService {
             Instant.now()));
 
     return new TokenResponse(
-        accessToken,
-        "Bearer",
-        properties.getAccessTokenTtlSeconds(),
-        refreshTokenValue,
-        scope);
+        accessToken, "Bearer", properties.getAccessTokenTtlSeconds(), refreshTokenValue, scope);
   }
 
   private String randomToken() {

@@ -12,8 +12,6 @@ public class ExternalConsentUrlResolver implements ConsentUrlResolver {
 
   @Override
   public String consentUrl(String requestId, String lang) {
-    return template
-        .replace("{request_id}", requestId)
-        .replace("{lang}", lang == null ? "" : lang);
+    return template.replace("{request_id}", requestId).replace("{lang}", lang == null ? "" : lang);
   }
 }

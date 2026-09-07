@@ -1,6 +1,5 @@
 package com.loomascale.mcp.spi;
 
-import com.loomascale.mcp.tool.McpQuotaExceededException;
 // How many tool calls a user may make. Extracted as an SPI because metering is a
 // commercial concern, not an MCP one: a self-hosted server talking to its owner's own
 // ad accounts has nobody to bill, while a hosted service enforces a plan allowance.

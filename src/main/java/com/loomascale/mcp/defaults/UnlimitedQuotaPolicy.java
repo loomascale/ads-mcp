@@ -29,7 +29,8 @@ public class UnlimitedQuotaPolicy implements QuotaPolicy {
   public void requireRemaining(String userId) {
     AtomicInteger count = callsInWindow.computeIfAbsent(userId, AtomicInteger::new);
     if (count.incrementAndGet() > maxCallsPerWindow) {
-      log.warn("Runaway guard tripped for {}: over {} calls in one window", userId, maxCallsPerWindow);
+      log.warn(
+          "Runaway guard tripped for {}: over {} calls in one window", userId, maxCallsPerWindow);
       // Deliberately worded as a loop, not a quota: there is nothing to buy here, and
       // telling the model to upgrade would be a lie it would then repeat to the user.
       throw new McpQuotaExceededException(

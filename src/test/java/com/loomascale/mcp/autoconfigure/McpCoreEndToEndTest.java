@@ -14,13 +14,12 @@ import com.loomascale.mcp.spi.AdsTarget;
 import com.loomascale.mcp.tool.AdsTool;
 import com.loomascale.mcp.tool.ToolAnnotations;
 import com.loomascale.mcp.tool.ToolResult;
-import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -231,7 +230,8 @@ class McpCoreEndToEndTest {
 
     JsonNode registered =
         mapper.readTree(
-            rest.postForEntity(url("/oauth/register"), jsonRequest(registration, null), String.class)
+            rest.postForEntity(
+                    url("/oauth/register"), jsonRequest(registration, null), String.class)
                 .getBody());
     String clientId = registered.path("client_id").asText();
     assertTrue(clientId.startsWith("mcp_"), clientId);
@@ -242,14 +242,17 @@ class McpCoreEndToEndTest {
         Base64.getUrlEncoder()
             .withoutPadding()
             .encodeToString(
-                MessageDigest.getInstance("SHA-256").digest(verifier.getBytes(StandardCharsets.UTF_8)));
+                MessageDigest.getInstance("SHA-256")
+                    .digest(verifier.getBytes(StandardCharsets.UTF_8)));
 
     ResponseEntity<String> authorize =
         rest.getForEntity(
             url(
-                "/oauth/authorize?response_type=code&client_id=" + clientId
+                "/oauth/authorize?response_type=code&client_id="
+                    + clientId
                     + "&redirect_uri=https://client.example.com/callback"
-                    + "&code_challenge=" + challenge
+                    + "&code_challenge="
+                    + challenge
                     + "&code_challenge_method=S256&scope=ads.read&state=xyz"),
             String.class);
     // Redirected to the consent screen rather than straight back to the client.
@@ -329,8 +332,7 @@ class McpCoreEndToEndTest {
         mapper.readTree(
             rest.postForEntity(url("/mcp"), jsonRequest(callRequest, accessToken), String.class)
                 .getBody());
-    assertEquals(
-        "hello", called.path("result").path("structuredContent").path("value").asText());
+    assertEquals("hello", called.path("result").path("structuredContent").path("value").asText());
     assertTrue(called.path("result").path("isError").isBoolean());
 
     // 10. initialize reports the configured server name.
@@ -340,8 +342,7 @@ class McpCoreEndToEndTest {
         mapper.readTree(
             rest.postForEntity(url("/mcp"), jsonRequest(initRequest, accessToken), String.class)
                 .getBody());
-    assertEquals(
-        "test-ads", initialized.path("result").path("serverInfo").path("name").asText());
+    assertEquals("test-ads", initialized.path("result").path("serverInfo").path("name").asText());
   }
 
   private HttpEntity<String> jsonRequest(ObjectNode body, String bearer) {

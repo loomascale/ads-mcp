@@ -1,15 +1,19 @@
 package com.loomascale.mcp.protocol;
 
-import com.loomascale.mcp.oauth.OAuthAccessTokenService;import com.loomascale.mcp.tool.AdsTool;import com.loomascale.mcp.tool.McpCallOutcome;import com.loomascale.mcp.tool.McpQuotaExceededException;import com.loomascale.mcp.tool.McpToolException;import com.loomascale.mcp.tool.ToolResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.loomascale.mcp.oauth.OAuthAccessTokenService.AccessTokenClaims;
+import com.loomascale.mcp.oauth.OAuthScopes;
 import com.loomascale.mcp.spi.McpToolCallObserver;
 import com.loomascale.mcp.spi.ProductBranding;
 import com.loomascale.mcp.spi.QuotaPolicy;
 import com.loomascale.mcp.spi.ToolCallRecord;
-import com.loomascale.mcp.oauth.OAuthAccessTokenService.AccessTokenClaims;
-import com.loomascale.mcp.oauth.OAuthScopes;
+import com.loomascale.mcp.tool.AdsTool;
+import com.loomascale.mcp.tool.McpCallOutcome;
+import com.loomascale.mcp.tool.McpQuotaExceededException;
+import com.loomascale.mcp.tool.McpToolException;
+import com.loomascale.mcp.tool.ToolResult;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +58,8 @@ public class McpProtocolService {
             case "ping" -> objectMapper.createObjectNode();
             case "tools/list" -> toolsList();
             case "tools/call" -> callTool(request, claims);
-            default -> throw new JsonRpcException(ERR_METHOD_NOT_FOUND, "Unknown method: " + method);
+            default ->
+                throw new JsonRpcException(ERR_METHOD_NOT_FOUND, "Unknown method: " + method);
           };
       return Optional.of(success(id, result));
     } catch (JsonRpcException e) {
@@ -89,7 +94,8 @@ public class McpProtocolService {
   private ObjectNode callTool(JsonNode request, AccessTokenClaims claims) {
     JsonNode params = request.path("params");
     String toolName = params.path("name").asText();
-    JsonNode args = params.has("arguments") ? params.get("arguments") : objectMapper.createObjectNode();
+    JsonNode args =
+        params.has("arguments") ? params.get("arguments") : objectMapper.createObjectNode();
 
     // Field names only — arguments carry model-supplied ad copy, URLs and ids.
     List<String> argFields = new ArrayList<>();
@@ -183,7 +189,10 @@ public class McpProtocolService {
       try {
         observer.onToolCall(record);
       } catch (RuntimeException e) {
-        log.warn("MCP tool-call observer {} failed: {}", observer.getClass().getSimpleName(), e.getMessage());
+        log.warn(
+            "MCP tool-call observer {} failed: {}",
+            observer.getClass().getSimpleName(),
+            e.getMessage());
       }
     }
   }

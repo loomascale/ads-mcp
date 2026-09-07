@@ -1,10 +1,9 @@
 package com.loomascale.mcp.web;
 
-import com.loomascale.mcp.oauth.OAuthClient;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.loomascale.mcp.oauth.OAuthClient;
 import com.loomascale.mcp.oauth.DynamicClientRegistrationService;
 import com.loomascale.mcp.oauth.DynamicClientRegistrationService.InvalidRegistrationException;
+import com.loomascale.mcp.oauth.OAuthClient;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;

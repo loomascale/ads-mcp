@@ -29,8 +29,7 @@ class McpStartupCheckTest {
   @Test
   void refusesToStartWithoutATokenSigningSecret() {
     McpStartupCheck check =
-        new McpStartupCheck(
-            oauth("", "https://mcp.example.com"), mcp("builtin", "pw"), true, true);
+        new McpStartupCheck(oauth("", "https://mcp.example.com"), mcp("builtin", "pw"), true, true);
 
     IllegalStateException e = assertThrows(IllegalStateException.class, check::afterPropertiesSet);
 

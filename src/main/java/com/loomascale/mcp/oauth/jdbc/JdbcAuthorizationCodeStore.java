@@ -45,7 +45,8 @@ public class JdbcAuthorizationCodeStore implements AuthorizationCodeStore {
 
   @Override
   public Optional<OAuthAuthorizationCode> findByCodeHash(String codeHash) {
-    return jdbc.query(
+    return jdbc
+        .query(
             "select " + COLUMNS + " from oauth_authorization_codes where code_hash = ?",
             MAPPER,
             codeHash)
@@ -56,7 +57,9 @@ public class JdbcAuthorizationCodeStore implements AuthorizationCodeStore {
   @Override
   public void save(OAuthAuthorizationCode code) {
     jdbc.update(
-        "insert into oauth_authorization_codes (" + COLUMNS + ")"
+        "insert into oauth_authorization_codes ("
+            + COLUMNS
+            + ")"
             + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         code.id(),
         code.codeHash(),

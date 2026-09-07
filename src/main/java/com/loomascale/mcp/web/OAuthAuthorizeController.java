@@ -54,9 +54,7 @@ public class OAuthAuthorizeController {
           .contentType(MediaType.TEXT_HTML)
           .body("<h1>Invalid authorization request</h1><p>" + escape(e.getMessage()) + "</p>");
     } catch (AuthorizationRedirectException e) {
-      return ResponseEntity.status(HttpStatus.FOUND)
-          .location(URI.create(e.redirectUrl()))
-          .build();
+      return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(e.redirectUrl())).build();
     }
   }
 

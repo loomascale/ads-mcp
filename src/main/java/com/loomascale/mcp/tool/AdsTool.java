@@ -1,6 +1,5 @@
 package com.loomascale.mcp.tool;
 
-import com.loomascale.mcp.protocol.McpToolRegistry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

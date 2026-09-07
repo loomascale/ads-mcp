@@ -1,6 +1,5 @@
 package com.loomascale.mcp.schema;
 
-import com.loomascale.mcp.money.Money;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,8 +23,7 @@ public final class McpSchemas {
   private McpSchemas() {}
 
   // Nullable decimal money property with the unit contract spelled out.
-  public static ObjectNode moneyProp(
-      ObjectNode schema, String name, String description) {
+  public static ObjectNode moneyProp(ObjectNode schema, String name, String description) {
     return nullableProp(schema, name, "number", description + MONEY_UNITS);
   }
 

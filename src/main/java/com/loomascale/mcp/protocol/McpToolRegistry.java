@@ -1,16 +1,16 @@
 package com.loomascale.mcp.protocol;
 
-import com.loomascale.mcp.tool.AdsTool;import com.loomascale.mcp.tool.ToolAnnotations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.loomascale.mcp.tool.AdsTool;
+import com.loomascale.mcp.tool.ToolAnnotations;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 // Collects all AdsTool beans and builds the tools/list payload. Mirrors
 // SocialProviderRegistry: adding a tool = adding a @Component, nothing else.
@@ -22,8 +22,7 @@ public class McpToolRegistry {
 
   public McpToolRegistry(List<AdsTool> toolBeans, ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
-    this.tools =
-        toolBeans.stream().collect(Collectors.toMap(AdsTool::name, t -> t, (a, b) -> a));
+    this.tools = toolBeans.stream().collect(Collectors.toMap(AdsTool::name, t -> t, (a, b) -> a));
     log.info("Registered {} MCP ads tools: {}", tools.size(), tools.keySet());
   }
 

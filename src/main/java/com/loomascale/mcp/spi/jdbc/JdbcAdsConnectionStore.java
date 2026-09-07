@@ -65,8 +65,11 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
 
   @Override
   public Optional<AdsConnection> find(String userId, String platformKey) {
-    return jdbc.query(
-            "select " + COLUMNS + " from mcp_ads_connections where user_id = ? and platform_key = ?",
+    return jdbc
+        .query(
+            "select "
+                + COLUMNS
+                + " from mcp_ads_connections where user_id = ? and platform_key = ?",
             (ResultSet rs, int rowNum) -> toValue(rs),
             userId,
             platformKey)
@@ -100,14 +103,17 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
       // The platform says the grant is gone: only reconnecting can fix it.
       markExpired(connection.id());
       throw new McpToolException(
-          "The connection to " + connection.platformKey() + " has expired and needs to be"
+          "The connection to "
+              + connection.platformKey()
+              + " has expired and needs to be"
               + " reconnected.");
     } catch (RuntimeException e) {
       // Anything else is treated as transient and must NOT expire the connection: a token
       // endpoint that is merely down would otherwise disconnect every user permanently.
       log.warn("Token refresh failed for {}: {}", connection.id(), e.getMessage());
       throw new McpToolException(
-          "Could not renew the connection to " + connection.platformKey()
+          "Could not renew the connection to "
+              + connection.platformKey()
               + " just now. Try again in a moment.");
     }
   }
@@ -141,8 +147,10 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
 
   @Override
   public void markExpired(String connectionId) {
-    jdbc.update("update mcp_ads_connections set state = ? where id = ?",
-        AdsConnectionState.EXPIRED.name(), connectionId);
+    jdbc.update(
+        "update mcp_ads_connections set state = ? where id = ?",
+        AdsConnectionState.EXPIRED.name(),
+        connectionId);
     log.warn("Marked connection {} EXPIRED", connectionId);
   }
 
@@ -204,7 +212,8 @@ public class JdbcAdsConnectionStore implements AdsConnectionStore {
   // Re-read rather than trusting the value handed in: a tool call can span seconds, and a
   // refresh in between must be visible to the next read.
   private Row row(String connectionId) {
-    return jdbc.query(
+    return jdbc
+        .query(
             "select " + COLUMNS + " from mcp_ads_connections where id = ?",
             (ResultSet rs, int rowNum) -> toRow(rs),
             connectionId)

@@ -40,9 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class SafeImageFetcher {
 
   private static final byte[] JPEG_MAGIC = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
-  private static final byte[] PNG_MAGIC = {
-    (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-  };
+  private static final byte[] PNG_MAGIC = {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
   private static final String JPEG = "image/jpeg";
   private static final String PNG = "image/png";
   private static final int CHUNK_BYTES = 8192;
@@ -164,8 +162,11 @@ public class SafeImageFetcher {
                             + "."));
     if (!allowedContentTypes.contains(declared)) {
       throw new OutboundUrlRejectedException(
-          "The image URL returned " + declared + ". Expected one of "
-              + String.join(", ", allowedContentTypes) + ".");
+          "The image URL returned "
+              + declared
+              + ". Expected one of "
+              + String.join(", ", allowedContentTypes)
+              + ".");
     }
     return declared;
   }
