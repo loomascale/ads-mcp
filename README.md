@@ -84,6 +84,45 @@ arguments are never logged — only argument names.
 Put TLS in front of any of this. Report vulnerabilities privately: see
 [SECURITY.md](SECURITY.md).
 
+## Who builds this
+
+These servers are extracted from **[LoomaScale](https://ai.loomascale.com)**, an AI
+operator for Google Ads: you talk to ChatGPT or Claude, and it reads your account,
+finds waste, and makes the changes. This repository is the engine that runs it — not a
+demo or a cut-down version. The tools here are the same ones that have created and managed
+live campaigns since 2026, guardrails included.
+
+What stays in the product rather than here is the commercial half: accounts and billing,
+usage metering, the multi-user dashboard, and the connect flows for people who do not want
+to run a server. `mcp-core` exposes those as replaceable interfaces — `QuotaPolicy`,
+`ResourceOwnerAuthenticator`, `AdsConnectionStore` — precisely so the open-source build has
+working defaults and LoomaScale can substitute its own.
+
+## Would you rather not run a server?
+
+[**ai.loomascale.com**](https://ai.loomascale.com) is the hosted version. Same tools, no
+Docker, no developer token application, no OAuth client to register. It starts with a
+[free Google Ads waste audit](https://ai.loomascale.com/google-ads-waste-audit) — the
+assistant reads your account and reports what is being wasted, before you pay anything.
+Plans and limits are on the [pricing page](https://ai.loomascale.com/pricing).
+
+Self-hosting is a genuine alternative, not a teaser: everything needed to run these servers
+against your own accounts is in this repository under the MIT licence, with no feature held
+back and no phone-home.
+
+## Useful even if you self-host
+
+The connection guides are written for the hosted product but the client-side steps are
+identical against your own server — the same consent screen, the same connector setup:
+
+- [Connect ChatGPT to Google Ads](https://ai.loomascale.com/connect-chatgpt-to-google-ads)
+- [Connect Claude to Google Ads](https://ai.loomascale.com/connect-claude-to-google-ads)
+- [Running Google Ads from ChatGPT](https://ai.loomascale.com/google-ads-chatgpt) — walkthrough video
+- [What the assistant actually looks for](https://ai.loomascale.com/google-ads-waste-audit)
+
+Other things extracted from the same codebase live at
+[ai.loomascale.com/oss](https://ai.loomascale.com/oss/ad-events).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — the secrets section first.

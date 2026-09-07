@@ -161,7 +161,7 @@ library, so nothing is registered that you cannot override.
 - Requests carrying a browser `Origin` are refused outright.
 - Tool arguments are never logged — only argument *names*.
 
-Reporting a vulnerability: see [SECURITY.md](SECURITY.md). Please do not open a public
+Reporting a vulnerability: see [SECURITY.md](../SECURITY.md). Please do not open a public
 issue.
 
 ## Compatibility
@@ -172,9 +172,17 @@ issue.
 
 While `0.x`, minor versions may change the SPI. It will stabilise at `1.0.0`.
 
+## Where this comes from
+
+Extracted from **[LoomaScale](https://ai.loomascale.com)**, where it carries the MCP
+traffic for a product that runs live Google Ads accounts from ChatGPT and Claude. The ads
+servers in this repository are its first two consumers, and LoomaScale itself is the third
+— which is why every host-specific concern here is an interface with a working default
+rather than an assumption.
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Read the secrets section first — this repository
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Read the secrets section first — this repository
 was extracted from a codebase that leaked credentials through placeholder defaults, and
 two build gates exist so that cannot happen here.
 

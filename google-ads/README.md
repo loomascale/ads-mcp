@@ -145,7 +145,7 @@ tokens are stored hashed and are single-use, with reuse revoking the whole token
 Image URLs handed in by the model go through an SSRF policy before the server fetches
 anything. Tool arguments are never logged — only argument names.
 
-Put TLS in front of it. Report vulnerabilities privately: see [SECURITY.md](SECURITY.md).
+Put TLS in front of it. Report vulnerabilities privately: see [SECURITY.md](../SECURITY.md).
 
 ## Compatibility
 
@@ -153,8 +153,25 @@ Put TLS in front of it. Report vulnerabilities privately: see [SECURITY.md](SECU
 |---|---|---|---|
 | 0.1.x | 0.1.x | v21 | 21+ |
 
+## Where this comes from
+
+Extracted from **[LoomaScale](https://ai.loomascale.com)**, an AI operator for Google Ads.
+These are the same 42 tools that run it in production — not a reduced version — and the
+guardrails above are the ones protecting real accounts.
+
+If you would rather not host it, the hosted product needs no developer token application
+and no OAuth client: it starts with a
+[free Google Ads waste audit](https://ai.loomascale.com/google-ads-waste-audit), and plans
+are on the [pricing page](https://ai.loomascale.com/pricing). Self-hosting is a real
+alternative rather than a teaser — nothing is held back from this repository.
+
+Two guides are worth reading whichever route you take, since the client-side steps are the
+same against your own server:
+[ChatGPT](https://ai.loomascale.com/connect-chatgpt-to-google-ads) ·
+[Claude](https://ai.loomascale.com/connect-claude-to-google-ads).
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — the secrets section first.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) — the secrets section first.
 
 Built and used in production by [LoomaScale](https://ai.loomascale.com). MIT licensed.
