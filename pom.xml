@@ -59,7 +59,7 @@
     <!-- Spring Boot 3.4's BOM pins Mockito/Byte Buddy versions that predate current
          JDKs; declared before the BOM import so these win and class mocking works. -->
     <byte-buddy.version>1.17.8</byte-buddy.version>
-    <mockito.version>5.20.0</mockito.version>
+    <mockito.version>5.23.0</mockito.version>
     <spotless.version>2.46.1</spotless.version>
     <google-java-format.version>1.28.0</google-java-format.version>
     <!-- Boot 3.4's BOM predates JDK 25 support in Lombok; override so annotation
