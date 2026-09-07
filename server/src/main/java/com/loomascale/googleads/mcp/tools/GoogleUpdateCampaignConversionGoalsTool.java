@@ -233,7 +233,8 @@ public class GoogleUpdateCampaignConversionGoalsTool implements AdsTool {
               + " goals to drive delivery.",
           structured(campaign.id(), GoogleCampaignGoalsDto.LEVEL_CAMPAIGN, after));
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, campaign.id(), false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, campaign.id(), false, e.getMessage());
       throw e;
     }
   }
@@ -285,7 +286,8 @@ public class GoogleUpdateCampaignConversionGoalsTool implements AdsTool {
               + ".",
           structured(campaign.id(), GoogleCampaignGoalsDto.LEVEL_CUSTOMER, accountGoals));
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, campaign.id(), false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, campaign.id(), false, e.getMessage());
       throw e;
     }
   }

@@ -528,7 +528,8 @@ public class GoogleCreatePmaxCampaignTool implements AdsTool {
               + " only. Review it, then run google_activate_campaign to go live.";
       return ToolResult.ok(text, structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.CREATE, argsSummary, campaignId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.CREATE, argsSummary, campaignId, false, e.getMessage());
       String hint = support.assetErrorHint(e.getMessage());
       if (!hint.isEmpty() && e instanceof McpToolException) {
         throw new McpToolException(e.getMessage() + " " + hint);

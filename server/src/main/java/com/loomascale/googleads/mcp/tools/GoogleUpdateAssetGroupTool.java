@@ -259,7 +259,8 @@ public class GoogleUpdateAssetGroupTool implements AdsTool {
       return ToolResult.ok(
           text(group, assetGroupId, effectiveStatus, effectiveUrls, newName), structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
       throw e;
     }
   }

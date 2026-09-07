@@ -260,7 +260,8 @@ public class GoogleUpdateSearchThemesTool implements AdsTool {
               skipped,
               audienceSignals));
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
       throw e;
     }
   }

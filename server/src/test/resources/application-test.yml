@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:googleads;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  liquibase:
+    change-log: classpath:db/changelog/google-ads-mcp-master.xml
+
+# Test-only literals. A fixture is exactly where a literal secret belongs, and a committed
+# application.yml is exactly where it does not.
+google-ads:
+  client-id: test-client-id
+  client-secret: test-client-secret
+  developer-token: test-developer-token
+  redirect-uri: http://localhost/connect/google/callback
+
+oauth:
+  issuer: http://localhost:8080
+  access-token-secret: dGVzdC1vbmx5LXNlY3JldC1mb3ItdW5pdC10ZXN0cy1uZXZlci1yZWFs
+
+mcp:
+  token-encryption-key: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  consent:
+    operator-password: test-operator-password

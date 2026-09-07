@@ -176,7 +176,14 @@ public class GoogleActivateCampaignTool implements AdsTool {
               + "/day.",
           structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, "campaign=" + campaignId, campaignId, false, e.getMessage());
+      audit.record(
+          userId,
+          name(),
+          WriteKind.UPDATE,
+          "campaign=" + campaignId,
+          campaignId,
+          false,
+          e.getMessage());
       throw e;
     }
   }

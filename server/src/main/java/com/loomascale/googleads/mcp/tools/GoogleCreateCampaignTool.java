@@ -347,7 +347,8 @@ public class GoogleCreateCampaignTool implements AdsTool {
     } catch (RuntimeException e) {
       // Best-effort rollback of whatever we managed to create.
       rollback(token, customerId, loginCustomerId, created);
-      audit.record(userId, name(), WriteKind.CREATE, argsSummary, campaignId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.CREATE, argsSummary, campaignId, false, e.getMessage());
       throw e;
     }
   }

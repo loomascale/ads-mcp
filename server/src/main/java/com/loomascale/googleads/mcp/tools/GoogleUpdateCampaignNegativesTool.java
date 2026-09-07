@@ -479,7 +479,8 @@ public class GoogleUpdateCampaignNegativesTool implements AdsTool {
       }
     } catch (RuntimeException e) {
       rollback(connection, token, customerId, loginCustomerId, created);
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
       throw e;
     }
 

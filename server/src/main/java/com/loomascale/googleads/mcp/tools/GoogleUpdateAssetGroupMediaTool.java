@@ -459,7 +459,8 @@ public class GoogleUpdateAssetGroupMediaTool implements AdsTool {
           text(group, assetGroupId, added, removed, kept, countAfter),
           structured(group, assetGroupId, true, added, removed, kept, countAfter, callToAction));
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, assetGroupId, false, e.getMessage());
       String hint = support.assetErrorHint(e.getMessage());
       if (!hint.isEmpty() && e instanceof McpToolException) {
         throw new McpToolException(e.getMessage() + " " + hint);

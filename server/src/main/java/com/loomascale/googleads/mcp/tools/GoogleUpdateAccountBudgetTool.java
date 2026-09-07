@@ -210,7 +210,8 @@ public class GoogleUpdateAccountBudgetTool implements AdsTool {
       return ToolResult.ok(
           text(applied, limitCents, currency, budget.id(), customerId), structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, budget.id(), false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, budget.id(), false, e.getMessage());
       throw e;
     }
   }

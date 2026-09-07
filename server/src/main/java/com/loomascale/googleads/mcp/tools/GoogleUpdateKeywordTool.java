@@ -225,7 +225,8 @@ public class GoogleUpdateKeywordTool implements AdsTool {
       }
       return ToolResult.ok(text.toString(), structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, criterionId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, criterionId, false, e.getMessage());
       throw e;
     }
   }

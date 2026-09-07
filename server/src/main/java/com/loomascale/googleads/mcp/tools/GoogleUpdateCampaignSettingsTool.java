@@ -396,7 +396,8 @@ public class GoogleUpdateCampaignSettingsTool implements AdsTool {
           text(campaign, effectiveName, effectiveStart, effectiveEnd, clearEndDate, warnings),
           structured(campaignId, campaign, effectiveName, changed, warnings));
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
       throw e;
     }
   }

@@ -1,9 +1,9 @@
 package com.loomascale.googleads.mcp.service;
 
-import com.loomascale.mcp.security.ImageDimensions;
 import com.loomascale.googleads.client.dto.GoogleMediaSlot;
 import com.loomascale.mcp.security.FetchedCreativeImage;
 import com.loomascale.mcp.security.ImageDimensionReader;
+import com.loomascale.mcp.security.ImageDimensions;
 import com.loomascale.mcp.security.OutboundUrlRejectedException;
 import com.loomascale.mcp.security.SafeImageFetcher;
 import com.loomascale.mcp.spi.AdsConnection;

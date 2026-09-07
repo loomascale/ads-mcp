@@ -441,7 +441,8 @@ public class GoogleUpdateCampaignBiddingTool implements AdsTool {
               loginCustomerId),
           structured);
     } catch (RuntimeException e) {
-      audit.record(userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
+      audit.record(
+          userId, name(), WriteKind.UPDATE, argsSummary, campaignId, false, e.getMessage());
       throw e;
     }
   }

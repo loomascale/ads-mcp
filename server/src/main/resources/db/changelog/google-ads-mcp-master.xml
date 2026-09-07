@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <!--
+    This server's schema is entirely mcp-core's, resolved from the dependency jar off the
+    classpath. There is nothing Google-specific to store: campaigns live in Google Ads, and
+    what this server keeps is the credential to reach them plus the audit trail of what it
+    changed.
+
+    ads-connections.xml is included because this server uses the built-in credential store.
+    A deployment supplying its own AdsConnectionStore would drop that line.
+  -->
+  <include file="db/changelog/mcp-core/mcp-core-master.xml"/>
+  <include file="db/changelog/mcp-core/ads-connections.xml"/>
+</databaseChangeLog>
