@@ -1,0 +1,3235 @@
+{
+  "identifier": "loomascale-ads",
+  "name": "LoomaScale Ads",
+  "version": "1.0.0",
+  "description": "Run Google Ads and Meta Ads from ChatGPT or Claude behind a daily spend cap: audit wasted spend, research keywords, create campaigns, change budgets.",
+  "author": "LoomaScale",
+  "authorUrl": "https://github.com/loomascale",
+  "homepage": "https://ai.loomascale.com",
+  "cloudEndpoint": "https://api.loomascale.com/mcp",
+  "icon": "https://ai.loomascale.com/apple-icon.png",
+  "category": "business",
+  "tags": [
+    "google-ads",
+    "meta-ads",
+    "facebook-ads",
+    "advertising",
+    "ppc",
+    "keyword-research",
+    "campaign-management",
+    "chatgpt",
+    "claude"
+  ],
+  "tools": [
+    {
+      "name": "loomascale_check_quota",
+      "title": "LoomaScale: Check Task Quota",
+      "description": "Report how many LoomaScale tasks the user has left in the current period: used, limit, remaining, and when the counter resets. A task is one request in this chat — all the tool calls made to answer a single message count as one. The allowance comes from the user's plan (free, plus, pro or max); legacy plans are unlimited, and so is a new account's free trial, which starts at its first task — the answer then says when the trial ends instead. Calling this is free — it never consumes a task and keeps working after the quota runs out or the trial ends. This is the LoomaScale task allowance only, not ad spend, ad account balance, or campaign budget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "title": "LoomaScale: Check Task Quota",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "meta_list_ad_accounts",
+      "title": "Meta: List Ad Accounts",
+      "description": "List the Meta (Facebook/Instagram) ad accounts connected to this account, including which of them this user can actually change (as opposed to only read) and, when the connection allows it, which Business owns each one.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "title": "Meta: List Ad Accounts",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_list_campaigns",
+      "title": "Meta: List Campaigns",
+      "description": "List campaigns for a Meta ad account, including each campaign's status and daily budget. Optionally includes ad sets, and with include_targeting each ad set's locations, age range and gender — read that before changing anything with meta_update_adset_targeting. For individual ads, use meta_list_ads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to the selected one."
+          },
+          "include_adsets": {
+            "type": "boolean",
+            "description": "Include ad sets. Default true."
+          },
+          "include_targeting": {
+            "type": "boolean",
+            "description": "Include each ad set's targeting — countries, regions, cities, age range, gender. Default false, because it roughly triples the size of the answer."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: List Campaigns",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_list_ads",
+      "title": "Meta: List Ads",
+      "description": "List individual ads in a Meta ad account with their id, name, and delivery status. Filter by campaign, ad set, or a name fragment. Use this to find the ad id for meta_set_status or for meta_get_insights at ad level.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only ads in this campaign."
+          },
+          "adset_id": {
+            "type": "string",
+            "description": "Only ads in this ad set."
+          },
+          "name_contains": {
+            "type": "string",
+            "description": "Only ads whose name contains this text (ignores case)."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: List Ads",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_list_drafts",
+      "title": "Meta: List Drafts",
+      "description": "List unpublished Meta Ads Manager drafts (the Review & Publish queue) for one ad set or ad, or across the ad account. Meta exposes drafts on ad sets and ads only, so an account-wide listing is collected ad set by ad set; campaign and account ids are not accepted in object_id. Read-only — drafts cannot be created, edited, or published through this API. Existing paused or inactive ads are not drafts; use meta_list_ads for those.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to the selected one."
+          },
+          "object_id": {
+            "type": "string",
+            "description": "Only drafts under this ad set or ad. Meta has no drafts edge on campaigns or accounts."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: List Drafts",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_list_pages",
+      "title": "Meta: List Pages",
+      "description": "List the Facebook Pages this Meta connection can advertise from — both the Pages the user has a role on and the Pages linked to the ad account. Every ad creative is published by a Page, so pass one of these ids as page_id to meta_create_campaign. The Page marked default is the one meta_create_campaign uses when page_id is omitted. If a Page is missing, it is an access problem in Meta, not a limit of this tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to the selected one."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: List Pages",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_get_insights",
+      "title": "Meta: Get Performance Insights",
+      "description": "Get performance metrics for a Meta ad account at account, campaign, ad set, or individual ad level: impressions, clicks, spend, reach, CTR, CPC, CPM, frequency, plus conversions (purchases, purchase value, cost per purchase, ROAS) when the account reports them. Supports breakdowns by placement, device, age, gender, and country. Each row carries the id of the campaign, ad set, or ad it covers, usable directly with meta_set_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to selected."
+          },
+          "level": {
+            "type": "string",
+            "description": "Aggregation level: account, campaign, adset, or ad (one row per individual ad). Default campaign.",
+            "enum": [
+              "account",
+              "campaign",
+              "adset",
+              "ad"
+            ]
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Date range preset. Default last_7d.",
+            "enum": [
+              "today",
+              "yesterday",
+              "last_7d",
+              "last_14d",
+              "last_30d",
+              "this_month",
+              "last_month",
+              "maximum"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Start date YYYY-MM-DD (overrides date_preset with until)."
+          },
+          "until": {
+            "type": "string",
+            "description": "End date YYYY-MM-DD."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Filter to a single campaign id."
+          },
+          "breakdowns": {
+            "type": "array",
+            "description": "Split each row by these dimensions (e.g. publisher_platform for Facebook vs Instagram, or age/gender). Meta rejects some combinations.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "publisher_platform",
+                "platform_position",
+                "impression_device",
+                "device_platform",
+                "age",
+                "gender",
+                "country",
+                "region"
+              ]
+            }
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: Get Performance Insights",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_check_pacing",
+      "title": "Meta: Check Spend Pacing",
+      "description": "Check today's ad spend and delivery health for a Meta ad account: pacing against daily budgets, zero-delivery active campaigns, and delivery problems.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to selected."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Meta: Check Spend Pacing",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_create_campaign",
+      "title": "Meta: Create Campaign",
+      "description": "Create a Meta (Facebook/Instagram) ad campaign for traffic, awareness, engagement, or sales. The campaign, ad set, and ad are all created PAUSED — nothing spends until you run meta_activate_campaign. A sales campaign optimizes for website conversions and needs a Meta Pixel on the ad account; its conversion event is locked in at creation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Campaign name."
+          },
+          "objective": {
+            "type": "string",
+            "description": "Campaign objective. OUTCOME_SALES optimizes for pixel conversions on your site.",
+            "enum": [
+              "OUTCOME_TRAFFIC",
+              "OUTCOME_AWARENESS",
+              "OUTCOME_ENGAGEMENT",
+              "OUTCOME_SALES"
+            ]
+          },
+          "daily_budget": {
+            "type": "number",
+            "description": "Daily budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "link_url": {
+            "type": "string",
+            "description": "Destination URL for the ad."
+          },
+          "ad_text": {
+            "type": "string",
+            "description": "Primary ad text / body copy."
+          },
+          "headline": {
+            "type": "string",
+            "description": "Optional headline."
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Optional creative image URL. Must be a publicly reachable https JPEG or PNG — the image is uploaded to the ad account, not hotlinked."
+          },
+          "call_to_action": {
+            "type": "string",
+            "description": "Optional button on the ad. Omitted entirely when not set. The button always points at link_url.",
+            "enum": [
+              "LEARN_MORE",
+              "SHOP_NOW",
+              "SIGN_UP",
+              "SUBSCRIBE",
+              "BOOK_TRAVEL",
+              "GET_OFFER",
+              "GET_QUOTE",
+              "CONTACT_US",
+              "APPLY_NOW",
+              "DOWNLOAD",
+              "ORDER_NOW",
+              "SEE_MENU",
+              "NO_BUTTON"
+            ]
+          },
+          "page_id": {
+            "type": "string",
+            "description": "Facebook Page id for the creative. Optional — the ad account's Page is used automatically when there is only one. See meta_list_pages."
+          },
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to selected."
+          },
+          "countries": {
+            "type": "array",
+            "description": "ISO country codes. Default [\"US\"].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "age_min": {
+            "type": "integer",
+            "description": "Minimum audience age."
+          },
+          "age_max": {
+            "type": "integer",
+            "description": "Maximum audience age."
+          },
+          "pixel_id": {
+            "type": "string",
+            "description": "Meta Pixel id, OUTCOME_SALES only. Defaults to the account's pixel when it has exactly one."
+          },
+          "conversion_event": {
+            "type": "string",
+            "description": "Pixel event to optimize for, OUTCOME_SALES only. Default PURCHASE. Cannot be changed after the ad set is created.",
+            "enum": [
+              "PURCHASE",
+              "ADD_TO_CART",
+              "INITIATED_CHECKOUT",
+              "ADD_PAYMENT_INFO",
+              "COMPLETE_REGISTRATION",
+              "LEAD",
+              "CONTENT_VIEW",
+              "SEARCH",
+              "SUBSCRIBE",
+              "START_TRIAL"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "objective",
+          "daily_budget",
+          "link_url",
+          "ad_text"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Create Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_create_ad",
+      "title": "Meta: Create Ad",
+      "description": "Add a new ad, with a new creative, to an ad set that already exists — use this instead of meta_create_campaign when the campaign and ad set are already set up. The ad is created PAUSED even if the ad set is active, so it does not spend until you run meta_set_status on the returned adId. Any image is uploaded to the ad account rather than hotlinked. Use meta_list_campaigns to find the ad set id.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_set_id": {
+            "type": "string",
+            "description": "Id of the existing ad set the ad goes into."
+          },
+          "ad_text": {
+            "type": "string",
+            "description": "Primary ad text / body copy."
+          },
+          "link_url": {
+            "type": "string",
+            "description": "Destination URL for the ad."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional ad name. Defaults to a name derived from the ad set."
+          },
+          "headline": {
+            "type": "string",
+            "description": "Optional headline."
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Optional creative image URL. Must be a publicly reachable https JPEG or PNG — the image is uploaded to the ad account, not hotlinked."
+          },
+          "call_to_action": {
+            "type": "string",
+            "description": "Optional button on the ad. Omitted entirely when not set. The button always points at link_url.",
+            "enum": [
+              "LEARN_MORE",
+              "SHOP_NOW",
+              "SIGN_UP",
+              "SUBSCRIBE",
+              "BOOK_TRAVEL",
+              "GET_OFFER",
+              "GET_QUOTE",
+              "CONTACT_US",
+              "APPLY_NOW",
+              "DOWNLOAD",
+              "ORDER_NOW",
+              "SEE_MENU",
+              "NO_BUTTON"
+            ]
+          },
+          "page_id": {
+            "type": "string",
+            "description": "Facebook Page id for the creative. Optional — the ad account's Page is used automatically when there is only one. See meta_list_pages."
+          },
+          "ad_account_id": {
+            "type": "string",
+            "description": "Ad account id (act_...). Defaults to selected."
+          }
+        },
+        "required": [
+          "ad_set_id",
+          "ad_text",
+          "link_url"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Create Ad",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_activate_campaign",
+      "title": "Meta: Activate Campaign",
+      "description": "Activate a PAUSED Meta campaign so it starts spending. Only works on campaigns created through this server, and re-checks the budget against your daily cap first. If you also run Google Ads, that server exposes google_activate_campaign.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign id to activate (go live)."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Activate Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_set_status",
+      "title": "Meta: Set Campaign or Ad Status",
+      "description": "Pause or resume any Meta ad object: an individual ad, an ad set, or a whole campaign. Pausing stops its spend immediately; resuming re-checks the governing daily budget against your cap first. Use meta_list_ads or meta_list_campaigns to find the object id.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "description": "Id of the ad, ad set, or campaign to pause or resume."
+          },
+          "status": {
+            "type": "string",
+            "description": "PAUSED to stop spend, ACTIVE to resume it.",
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ]
+          }
+        },
+        "required": [
+          "object_id",
+          "status"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Set Campaign or Ad Status",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_update_budget",
+      "title": "Meta: Update Campaign or Ad Set Budget",
+      "description": "Change the daily budget of a Meta campaign or ad set. Cannot exceed your configured daily spend cap.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "description": "Campaign or ad set id to update."
+          },
+          "daily_budget": {
+            "type": "number",
+            "description": "New daily budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          }
+        },
+        "required": [
+          "object_id",
+          "daily_budget"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Update Campaign or Ad Set Budget",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_update_adset_targeting",
+      "title": "Meta: Update Ad Set Targeting",
+      "description": "Change where a Meta ad set delivers and who it reaches: target or drop countries, regions and cities, set the radius around a city, and set the age range and gender. Read the current targeting first with meta_list_campaigns and include_targeting, and resolve region and city keys with meta_find_locations — countries are plain two-letter ISO codes. Each geography can be given either as an exact list (countries) or as changes to the current one (add_countries, remove_countries), not both. Everything the call does not name is left exactly as it is, including interests, custom audiences, placements and excluded locations. An edit that would leave the ad set with no location at all is refused. Targeting changes restart the ad set's learning phase, so delivery and cost per result are unstable for a day or two afterwards.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "adset_id": {
+            "type": "string",
+            "description": "Ad set whose targeting to change."
+          },
+          "countries": {
+            "type": "array",
+            "description": "The exact countries the ad set should target, as two-letter ISO codes, e.g. [\"AU\", \"CA\", \"NZ\"]. Replaces the current country list.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "add_countries": {
+            "type": "array",
+            "description": "Countries to start targeting, as two-letter ISO codes.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_countries": {
+            "type": "array",
+            "description": "Countries to stop targeting, as two-letter ISO codes.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "description": "The exact regions the ad set should target, as keys from meta_find_locations.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "add_regions": {
+            "type": "array",
+            "description": "Region keys to start targeting.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_regions": {
+            "type": "array",
+            "description": "Region keys to stop targeting.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cities": {
+            "type": "array",
+            "description": "The exact cities the ad set should target, as keys from meta_find_locations.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "add_cities": {
+            "type": "array",
+            "description": "City keys to start targeting.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_cities": {
+            "type": "array",
+            "description": "City keys to stop targeting.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "radius_miles": {
+            "type": "integer",
+            "description": "How far around each targeted city ads may show, 1 to 50 miles. Applies to every city the ad set targets; countries and regions have no radius."
+          },
+          "age_min": {
+            "type": "integer",
+            "description": "Youngest age to reach, 13 to 65."
+          },
+          "age_max": {
+            "type": "integer",
+            "description": "Oldest age to reach, 13 to 65. 65 means 65 and over."
+          },
+          "genders": {
+            "type": "array",
+            "description": "Who to reach: [\"men\"], [\"women\"], or [\"all\"] for everyone. Omit to leave it alone.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "men",
+                "women",
+                "all"
+              ]
+            }
+          }
+        },
+        "required": [
+          "adset_id"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Update Ad Set Targeting",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_find_locations",
+      "title": "Meta: Find Locations",
+      "description": "Look up Meta Ads locations by name and get the key each one is targeted by, with its type and the country it sits in. Use this before changing where an ad set delivers with meta_update_adset_targeting whenever you have a place name rather than a key. Countries are targeted by two-letter ISO code and need no lookup; regions, cities and zips are opaque keys that only this tool can resolve.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Place name to look up, e.g. Sydney or California."
+          },
+          "types": {
+            "type": "array",
+            "description": "Kinds of place to return. Omit to search every kind.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "country",
+                "region",
+                "city",
+                "zip",
+                "geo_market"
+              ]
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "description": "How many matches to return. Default 25, at most 50."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Find Locations",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_query",
+      "title": "Meta: Query Ad Objects",
+      "description": "Read one object or one list from the user's connected Meta ad account that the typed meta_* tools do not return: ad creatives, custom, lookalike and saved audiences, pixels, an ad set's full targeting and promoted_object, ad labels, ad images and videos, the account's business, or insights with a breakdown, time_increment, sort or filter that meta_get_insights does not offer. Use the typed tools first (meta_get_insights, meta_list_campaigns, meta_list_ads, meta_check_pacing): they carry the right defaults and money handling. Use meta_get_object_metadata before this when unsure which fields or edges an object has. `path` names what to read: the ad account (act_<id>) or one of its campaigns, ad sets, ads or creatives by id, optionally with one edge — act_123/campaigns, 120210000000/insights, 120210000000/adcreatives, act_123/customaudiences, me/adaccounts. Limitations: read-only (only an HTTP GET is sent, so nothing can be created, changed or deleted); only objects the connected account can already see; edges that list the people on an account are refused; the access token is never passed in or returned; one page per call, capped at 500 rows (default 100) — when `hasMore` is true pass the returned `after` cursor to continue. Money comes back as Meta sends it: spend as a decimal string in the account currency, budgets and bids as integer strings in the currency's minor units (cents).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "What to read: act_<id>, act_<id>/<edge>, an ad object id, <id>/<edge>, or me/adaccounts. No query string — use fields, params and after."
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated Graph fields, nested with braces when wanted, e.g. \"id,name,status,adsets{id,name,targeting}\". Omitted = Graph's default fields."
+          },
+          "params": {
+            "type": "object",
+            "description": "Extra query parameters as name → value. Pass JSON-valued ones (filtering, time_range) as JSON strings or objects. Common: date_preset, time_range, level, breakdowns, action_breakdowns, time_increment, filtering, effective_status, sort, limit.",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "after": {
+            "type": "string",
+            "description": "Page cursor from a previous result's `after`, to fetch the next page."
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Query Ad Objects",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meta_get_object_metadata",
+      "title": "Meta: Get Object Metadata",
+      "description": "Describe one object in the user's connected Meta ad account — an ad account, campaign, ad set, ad, creative, pixel or audience — by listing the fields it exposes (name, type, description) and the edges that hang off it, as Meta itself reports them. Use it before meta_query when unsure what a field or edge is called; a guessed name costs a rejected request. Pass the id of an object you already have from meta_list_campaigns, meta_list_ads or meta_query, and `contains` to narrow a wide object. The insights report is not an object and has no such metadata, so object_id=insights returns a fixed list of its fields, breakdowns, date presets and parameters instead. Limitations: read-only; describes only objects the connected account can see; returns no advertising data, only the field catalogue.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "description": "Graph node id to describe — act_<id>, a campaign/ad set/ad/creative id, or the word insights for the insights report."
+          },
+          "contains": {
+            "type": "string",
+            "description": "Only fields whose name contains this text, e.g. \"budget\" or \"status\"."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max fields. Default 200, max 500."
+          }
+        },
+        "required": [
+          "object_id"
+        ]
+      },
+      "annotations": {
+        "title": "Meta: Get Object Metadata",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_ad_accounts",
+      "title": "Google Ads: List Ad Accounts",
+      "description": "List the Google Ads accounts you can manage, including accounts reached through a manager (MCC) account. Manager accounts hold no campaigns themselves. If you also run Meta ads, that server exposes meta_list_ad_accounts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "title": "Google Ads: List Ad Accounts",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_campaigns",
+      "title": "Google Ads: List Campaigns",
+      "description": "List campaigns in a Google Ads account, including each campaign's status, channel type, daily budget in the account's own currency (reported in the currency field), bidding strategy, the Max CPC limit of Maximize clicks campaigns, the target CPA or target ROAS an automated strategy bids to, the dates the campaign runs between, the locations and languages each campaign targets, and Google's own eligibility verdict per campaign (primaryStatus) with the reasons it is not serving. Optionally includes ad groups. For individual ads, use google_list_ads. If you also run Meta ads, that server exposes meta_list_campaigns.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "include_ad_groups": {
+            "type": "boolean",
+            "description": "Include ad groups. Default true."
+          },
+          "include_targeting": {
+            "type": "boolean",
+            "description": "Include the targeting of every campaign — the locations it targets or excludes and the languages it selected. Included by default; set false for a leaner listing that skips the criteria query."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Campaigns",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_ads",
+      "title": "Google Ads: List Ads",
+      "description": "List individual ads in a Google Ads account with their status, policy approval verdict, landing pages (the final URLs a click goes to) and, for responsive search ads, their headlines, descriptions and display paths. Use this to answer where an ad sends people and what it says. Optionally filtered by campaign or ad group. This is ad copy only, with no metrics: for impressions, clicks, cost and conversions per ad — which ad is wasting money, which responsive search ad is winning — use google_get_insights with level ad. For campaigns and ad groups, use google_list_campaigns. If you also run Meta ads, that server exposes meta_list_ads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only ads in this campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only ads in this ad group."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Ads",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_get_insights",
+      "title": "Google Ads: Get Performance Insights",
+      "description": "Get Google Ads performance metrics — impressions, clicks, cost, CTR, average CPC, conversions, and conversion value — for the whole account, per campaign, per ad group, per individual ad, or per keyword, over a preset or custom date range. Split rows by device, day of week, hour, or network with `segments`, and add search impression share and the share lost to budget or rank with `include_impression_share` — that is how to tell whether a campaign has room to spend more. Use level ad to find the ads wasting money and to compare the responsive search ads in an ad group against each other; rows carry each ad's status so an already-paused ad is not mistaken for one worth pausing, and the row name is the ad's name or, as most responsive search ads have none, its first headline. The ad_group, ad and keyword levels, and any segmented query, are capped at the highest-impression rows. For an ad's full copy — every headline, description and landing page — use google_list_ads. For the keyword list and why keywords do or do not serve, use google_list_keywords; for the queries users actually typed, use google_list_search_terms; for performance by location use google_get_geo_insights and by audience google_get_audience_insights. If you also run Meta ads, that server exposes meta_get_insights.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "level": {
+            "type": "string",
+            "description": "Aggregation level. Default campaign.",
+            "enum": [
+              "account",
+              "campaign",
+              "ad_group",
+              "ad",
+              "keyword"
+            ]
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only this ad group (ad_group, ad and keyword levels only)."
+          },
+          "ad_id": {
+            "type": "string",
+            "description": "Only this ad (ad level only)."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max rows at ad_group, ad and keyword level, highest impressions first. Default 100, max 1000."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset date range. Default LAST_7_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only this campaign (campaign level only)."
+          },
+          "segments": {
+            "type": "array",
+            "description": "Split every row by these dimensions, e.g. [\"device\"] to compare mobile with desktop. Rows are multiplied by each dimension's values, so a segmented result is always capped. Cannot be combined with include_impression_share.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "device",
+                "day_of_week",
+                "hour",
+                "ad_network_type"
+              ]
+            }
+          },
+          "include_impression_share": {
+            "type": "boolean",
+            "description": "Also report search impression share and the share lost to budget and to rank. Levels account, campaign and ad_group only — Google reports no impression share per ad or per keyword; at ad_group level Google does not report the budget-lost share, so only impression share and rank-lost share are returned. Default false."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Get Performance Insights",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_get_geo_insights",
+      "title": "Google Ads: Get Location Insights",
+      "description": "Get Google Ads performance broken down by location: impressions, clicks, cost, CTR, conversions and conversion value per geographic area, ordered by spend, with the location named rather than left as an id. Use this to find regions that spend without converting. For breakdowns by device, day of week, hour or network use google_get_insights with its segments argument; for audiences use google_get_audience_insights.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only this campaign."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset date range. Default LAST_30_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max rows, highest spend first. Default 100, max 1000."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Get Location Insights",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_get_audience_insights",
+      "title": "Google Ads: Get Audience Insights",
+      "description": "Get Google Ads performance broken down by audience: impressions, clicks, cost, CTR, conversions and conversion value per audience criterion attached to an ad group (remarketing lists, interest categories, audience segments), ordered by spend. Note that Google returns the audience as a resource name, which is not always readable. For breakdowns by device, day of week, hour or network use google_get_insights with its segments argument; for locations use google_get_geo_insights.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only this campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only this ad group."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset date range. Default LAST_30_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max rows, highest spend first. Default 100, max 1000."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Get Audience Insights",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_conversion_actions",
+      "title": "Google Ads: List Conversion Actions",
+      "description": "Audit how a Google Ads account counts conversions: every conversion action with its category, type, status, whether it is primary (so it feeds bidding and the conversions column), its counting type, attribution model, value settings and lookback windows, plus how many conversions each one actually recorded over the date range. Use this to find duplicated actions, actions marked primary that should not be, missing conversion values, and primary actions that have stopped firing. Also returns the account's conversion goals — the (category, origin) groups bidding optimizes towards — and, when campaign_id is given, that campaign's own goals and whether it uses campaign-specific goal settings; change those with google_update_campaign_conversion_goals. For the performance numbers those conversions roll up into, use google_get_insights.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Range the conversion counts cover. Default LAST_30_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Also report this campaign's conversion goals and whether it uses campaign-specific goal settings. Omit for the account-level picture only."
+          },
+          "include_removed": {
+            "type": "boolean",
+            "description": "Also list removed conversion actions. Default false — a removed action explains history but not what bidding is being fed today."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Conversion Actions",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_asset_groups",
+      "title": "Google Ads: List Asset Groups",
+      "description": "Audit Performance Max campaigns by asset group — the level PMax actually spends at. Returns each asset group's status, ad strength, why it is or is not serving, and its impressions, clicks, cost, conversions and conversion value for the range, ordered by spend. Set include_assets to also list the assets in each group with the slot they fill and whether they are serving, and include_search_themes to list the search themes and audience signals the campaign has been told to chase. For campaign-level numbers use google_get_insights, and for the list of campaigns and their channel types use google_list_campaigns.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only asset groups in this campaign. Get PMax campaign ids from google_list_campaigns."
+          },
+          "asset_group_id": {
+            "type": "string",
+            "description": "Only this asset group."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset date range. Default LAST_30_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max rows, highest spend first. Default 100, max 1000."
+          },
+          "include_assets": {
+            "type": "boolean",
+            "description": "Also list the assets in each group with their field type and whether they are serving. Default false."
+          },
+          "include_search_themes": {
+            "type": "boolean",
+            "description": "Also list the search theme and audience signals feeding each group. Default false."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Asset Groups",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_keywords",
+      "title": "Google Ads: List Keywords",
+      "description": "List the keywords of a Google Ads account, campaign, or ad group with their match type, status, serving status, eligibility reasons, quality score, and effective CPC bid. Use this to explain why a campaign gets no impressions: a keyword can be enabled and still never serve. Negative keywords are included and flagged. For per-keyword performance numbers use google_get_insights with level=keyword; for the queries users actually typed use google_list_search_terms; for new keyword suggestions use google_keyword_ideas.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only keywords in this campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only keywords in this ad group."
+          },
+          "include_negative": {
+            "type": "boolean",
+            "description": "Include negative (excluded) keywords. Default true."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Keywords",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_search_terms",
+      "title": "Google Ads: List Search Terms",
+      "description": "List the actual search queries that triggered Google Ads ads, with impressions, clicks, cost, CTR, conversions, the keyword each query matched, and whether the query is already added as a keyword or excluded as a negative. Ordered by impressions and capped. Use this to find wasted spend and missing keywords. For the keyword list itself use google_list_keywords; for suggestions not yet in the account use google_keyword_ideas. Meta has no search term equivalent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only terms from this campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only terms from this ad group."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset date range. Default LAST_30_DAYS. Ignored when since/until are set.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max terms, highest impressions first. Default 100, max 1000."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Search Terms",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_keyword_ideas",
+      "title": "Google Ads: Research Keyword Ideas",
+      "description": "Research new Google Ads keywords: average monthly search volume, competition level, and low/high top-of-page bid estimates for terms seeded from keyword phrases, a landing page url, or both. Use this to find terms worth adding and to check whether an existing keyword has any search volume at all. Returns the first page of results only. For keywords already in the account use google_list_keywords; for queries that already triggered ads use google_list_search_terms.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "keywords": {
+            "type": "array",
+            "description": "Seed keywords or phrases. Required unless page_url is given; both may be set.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "page_url": {
+            "type": "string",
+            "description": "Landing page to seed ideas from. Required unless keywords are given."
+          },
+          "geo_target_ids": {
+            "type": "array",
+            "description": "Google geo target constant ids to report volume for, e.g. 2840 for the United States. At most 10. Omit for all locations.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "language_id": {
+            "type": "string",
+            "description": "Google language constant id, e.g. 1000 for English. Omit for all languages."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max ideas. Default 100, max 1000."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Research Keyword Ideas",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_find_locations",
+      "title": "Google Ads: Find Locations",
+      "description": "Look up Google Ads locations by name and get the geo target constant id of each, with its canonical name and target type (Country, Region, City). Use this before changing location targeting with google_update_campaign_targeting, or before creating a campaign with google_create_campaign, whenever you have a place name rather than an id. Pass country_code when a name is ambiguous.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "array",
+            "description": "Place names to look up, e.g. [\"Kyiv\", \"Lviv Oblast\"]. At most 10.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "country_code": {
+            "type": "string",
+            "description": "Two-letter ISO country code to disambiguate the names, e.g. UA. Omit to search worldwide."
+          },
+          "locale": {
+            "type": "string",
+            "description": "Language of the returned names, e.g. en or uk. Default en."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Find Locations",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_check_pacing",
+      "title": "Google Ads: Check Spend Pacing",
+      "description": "Check today's spend and delivery health for a Google Ads account: pacing against daily budgets and enabled campaigns with zero delivery. If you also run Meta ads, that server exposes meta_check_pacing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Check Spend Pacing",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_check_billing",
+      "title": "Google Ads: Check Billing Status",
+      "description": "Check whether a Google Ads account is able to spend at all: its account status, whether a billing setup is approved and which payments account and profile it points at, and whether an account budget is pending, cancelled or exhausted. Use this when campaigns look enabled and ads look approved but nothing serves. The Google Ads API exposes no card balance, no billing hold and none of the payment-failure banners the Google Ads UI shows, so an empty blocker list means only that nothing billing-shaped is visible to the API — the result says where to look next. For today's spend and delivery use google_check_pacing; for per-campaign eligibility use google_list_campaigns.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: Check Billing Status",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_account_budget",
+      "title": "Google Ads: Update Account Budget",
+      "description": "Raise the account-level spending limit of an invoiced Google Ads account, the total cap above every campaign budget. Use when google_check_billing reports the account budget is exhausted and nothing is serving. Cannot exceed your configured total account-budget cap and never sets an unlimited budget. Accounts that pay by card have no account budget, so this does not apply to them. For a campaign's daily budget, use google_update_budget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spending_limit": {
+            "type": "number",
+            "description": "New total spending limit for the account budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "account_budget_id": {
+            "type": "string",
+            "description": "Account budget to change. Optional when the account has exactly one active budget."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "spending_limit"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Account Budget",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_budget",
+      "title": "Google Ads: Update Campaign Budget",
+      "description": "Change the daily budget of a Google Ads campaign. Cannot exceed your configured daily spend cap, and refuses budgets shared across several campaigns. If you also run Meta ads, that server exposes meta_update_budget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign whose budget to update."
+          },
+          "daily_budget": {
+            "type": "number",
+            "description": "New daily budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id",
+          "daily_budget"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Budget",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_campaign_bidding",
+      "title": "Google Ads: Update Campaign Bidding",
+      "description": "Change the bidding settings of a Google Ads campaign: set or clear the Max CPC limit of a Maximize clicks campaign, and/or switch the campaign between Maximize clicks and Manual CPC. Use this when a campaign gets few or no impressions because its Max CPC limit is below the market bid, or before setting manual bids with google_update_ad_group or google_update_keyword, which Google only honours under Manual CPC. Also switches a campaign to Maximize conversions, optionally with a target CPA — the strategy that optimizes towards the campaign's conversion goals, which google_update_campaign_conversion_goals selects. Also switches a campaign to Maximize conversion value, optionally with a target ROAS given as a RATIO (pass 4 to mean 400%) — the strategy Performance Max and value-based search campaigns use to bid on revenue rather than on conversion count. Refuses campaigns governed by a portfolio bidding strategy. For daily budgets use google_update_budget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign whose bidding to update."
+          },
+          "strategy": {
+            "type": "string",
+            "description": "Bidding strategy to switch the campaign to. Omit to keep the current one. MANUAL_CPC makes ad group and keyword bids take effect; MAXIMIZE_CLICKS lets Google bid automatically up to the Max CPC limit; MAXIMIZE_CONVERSIONS optimizes towards the campaign's biddable conversion goals and needs at least one of them.",
+            "enum": [
+              "MAXIMIZE_CLICKS",
+              "MANUAL_CPC",
+              "MAXIMIZE_CONVERSIONS",
+              "MAXIMIZE_CONVERSION_VALUE"
+            ]
+          },
+          "max_cpc": {
+            "type": "number",
+            "description": "New Max CPC limit for Maximize clicks — the most Google may bid for one click. Pass null to remove the limit entirely, which lets Google bid whatever the auction costs, up to the daily budget. Not accepted with MANUAL_CPC, which has no campaign-level limit. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "target_cpa": {
+            "type": "number",
+            "description": "Target cost per conversion for Maximize conversions — the average Google aims to pay for one conversion. Pass null to remove it and let Google spend the whole daily budget chasing conversions. Only accepted with MAXIMIZE_CONVERSIONS. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "target_roas": {
+            "type": "number",
+            "description": "Target return on ad spend for Maximize conversion value, as a RATIO — not money, and not a percentage. Pass 4 to mean 4 units of conversion value for every 1 unit of spend, which Google Ads displays as 400%; pass 0.5 to accept half. Never pass 400, and never pass an amount in the account currency. Only accepted with MAXIMIZE_CONVERSION_VALUE. Pass null to remove the target and let Google chase the most conversion value the daily budget can buy."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Bidding",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_campaign_conversion_goals",
+      "title": "Google Ads: Update Campaign Conversion Goals",
+      "description": "Choose which conversion goals a Google Ads campaign optimizes for, which is what the Google Ads UI calls campaign-specific goal settings. Goals are groups of conversion actions by category and origin — pass the categories the campaign should bid towards (for example SIGNUP) and every other goal is switched off for that campaign alone. Use this before switching a campaign to MAXIMIZE_CONVERSIONS with google_update_campaign_bidding, or when a campaign optimizes for the wrong events. Read the current goals and the categories available with google_list_conversion_actions. Pass use_account_goals to hand the campaign back to the account-level goals.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign whose conversion goals to set."
+          },
+          "biddable_categories": {
+            "type": "array",
+            "description": "Conversion goal categories this campaign should optimize for, e.g. [\"SIGNUP\"]. Every goal not listed is switched off for this campaign. An entry may be a bare category, which covers every origin the campaign has for it, or CATEGORY:ORIGIN to pick one origin, e.g. SIGNUP:WEBSITE.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "use_account_goals": {
+            "type": "boolean",
+            "description": "Drop the campaign-specific goals and go back to the account-level goals. Cannot be combined with biddable_categories."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Conversion Goals",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_campaign_targeting",
+      "title": "Google Ads: Update Campaign Targeting",
+      "description": "Change where and in which languages a Google Ads campaign may show: add targeted locations, add excluded locations, add languages, remove existing location or language criteria, and set whether location targeting applies to people present in an area or also to people interested in it. Location entries may be geo target constant ids or place names — use google_find_locations when you only have a name; language entries may be language constant ids, ISO codes (en, uk) or names (English). Read the current targeting with google_list_campaigns and include_targeting. This tool only adds what you name and removes what you name, with one exception: excluding a location the campaign currently targets replaces that criterion, and targeting one it currently excludes does the same, because Google cannot flip a criterion in place. It never replaces the whole list. A campaign with no targeted locations reaches every location on earth, and one with no languages shows to every language.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign whose location targeting to change."
+          },
+          "target_locations": {
+            "type": "array",
+            "description": "Locations to start targeting — geo target constant ids or place names. At most 20. Locations already targeted are skipped.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excluded_locations": {
+            "type": "array",
+            "description": "Locations to exclude — geo target constant ids or place names. At most 20. An exclusion beats a target, so use it to carve a region out of a wider one.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "description": "Languages the campaign should show in — language constant ids, ISO codes (en, uk) or names (English). At most 20. Languages already selected are skipped. Language targeting matches the language a person browses Google in, not the language of the keyword.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_criterion_ids": {
+            "type": "array",
+            "description": "Criterion ids of location or language criteria to delete, as reported by google_list_campaigns with include_targeting. Ids that are already gone are skipped.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "geo_target_type": {
+            "type": "string",
+            "description": "PRESENCE reaches only people in the targeted locations. PRESENCE_OR_INTEREST, Google's default, also reaches people elsewhere who show interest in them. Omit to leave the setting alone.",
+            "enum": [
+              "PRESENCE",
+              "PRESENCE_OR_INTEREST"
+            ]
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Targeting",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_declare_eu_political_ads",
+      "title": "Google Ads: Declare EU Political Advertising",
+      "description": "Record whether a Google Ads campaign contains political advertising in the European Union. Google requires this declaration on every campaign and refuses every change to a campaign that has none — targeting, budget, bidding and ads alike — with \"This operation is only allowed after you confirm if this campaign has European Union political ads\". Campaigns created outside this server, or before the rule, are the ones missing it. The declaration is a legal statement the advertiser makes about their own ads: ask the person whose account it is and pass their answer. Never assume it, and never call this tool to clear an error without asking first. Declaring political advertising also obliges the advertiser to complete Google's EU political advertising verification before those ads may run.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to declare for."
+          },
+          "contains_political_ads": {
+            "type": "boolean",
+            "description": "The advertiser's answer: true if this campaign runs political advertising in the EU, false if it does not. Pass what the advertiser told you, not a guess."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id",
+          "contains_political_ads"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Declare EU Political Advertising",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_set_status",
+      "title": "Google Ads: Set Campaign or Ad Status",
+      "description": "Pause or resume a Google Ads object: an individual ad, an ad group, or a whole campaign. Pausing stops its spend; resuming re-checks the governing campaign budget against your cap first. Use google_list_campaigns or google_list_ads to find ids. If you also run Meta ads, that server exposes meta_set_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "object_type": {
+            "type": "string",
+            "description": "What kind of object object_id refers to.",
+            "enum": [
+              "CAMPAIGN",
+              "AD_GROUP",
+              "AD"
+            ]
+          },
+          "object_id": {
+            "type": "string",
+            "description": "Id of the campaign, ad group, or ad."
+          },
+          "status": {
+            "type": "string",
+            "description": "PAUSED to stop spend, ENABLED to resume it.",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "object_type",
+          "object_id",
+          "status"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Set Campaign or Ad Status",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_create_campaign",
+      "title": "Google Ads: Create Campaign",
+      "description": "Create a Google Ads Search campaign with a responsive search ad and keywords. The campaign is created PAUSED — nothing spends until you run google_activate_campaign. Headlines are limited to 30 characters each (3-15 of them) and descriptions to 90 characters each (2-4). Pass locations to scope it geographically — without them the campaign targets every location on earth, which is Google's default; use google_find_locations to turn place names into ids. Pass languages the same way, or the ads show to people browsing Google in any language. If you also run Meta ads, that server exposes meta_create_campaign.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Campaign name."
+          },
+          "daily_budget": {
+            "type": "number",
+            "description": "Daily budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "final_url": {
+            "type": "string",
+            "description": "Landing page URL the ad clicks through to."
+          },
+          "headlines": {
+            "type": "array",
+            "description": "3-15 ad headlines, each 30 characters or fewer.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "descriptions": {
+            "type": "array",
+            "description": "2-4 ad descriptions, each 90 characters or fewer.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "description": "Search keywords to target (broad match), at least one.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "description": "Locations the campaign may show in — geo target constant ids or place names, at most 20. Omit only when the campaign really should reach every country; a campaign with no location criteria targets all locations.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "description": "Languages the campaign may show in — language constant ids, ISO codes (en, uk) or names (English), at most 20. A campaign with no language criteria shows to every language, matching the language a person browses Google in, not the language of the keywords.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "name",
+          "daily_budget",
+          "final_url",
+          "headlines",
+          "descriptions",
+          "keywords"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Create Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_create_pmax_campaign",
+      "title": "Google Ads: Create Performance Max Campaign",
+      "description": "Create a Google Ads Performance Max campaign complete enough to serve: a budget, the campaign, one asset group with headlines, descriptions and images, optional YouTube videos and search themes. The campaign is created PAUSED — nothing spends until you run google_activate_campaign. Performance Max needs more copy than a Search ad: 3-15 headlines of 30 characters, 1-5 long headlines of 90, 2-5 descriptions of 90 with at least one under 60, a business name, and images in three required slots — Google will not run an asset group without them. It bids to maximize conversions; pass target_roas to bid on conversion value instead. Pass locations to scope it geographically — without them the campaign targets every location on earth, which is Google's default; use google_find_locations to turn place names into ids. For a Search campaign use google_create_campaign, and to change this campaign afterwards use google_update_asset_group_assets, google_update_asset_group_media, google_update_brand_assets and google_update_search_themes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Campaign name."
+          },
+          "daily_budget": {
+            "type": "number",
+            "description": "Daily budget. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "final_url": {
+            "type": "string",
+            "description": "Landing page URL the asset group sends clicks to."
+          },
+          "headlines": {
+            "type": "array",
+            "description": "3-15 headlines, each 30 characters or fewer.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "long_headlines": {
+            "type": "array",
+            "description": "1-5 long headlines, each 90 characters or fewer. Performance Max shows these where there is room for a longer line.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "descriptions": {
+            "type": "array",
+            "description": "2-5 descriptions, each 90 characters or fewer, at least one of them 60 or fewer — Google refuses an asset group whose descriptions are all long.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "business_name": {
+            "type": "string",
+            "description": "The advertiser's name as it should appear in the ads, at most 25 characters."
+          },
+          "marketing_images": {
+            "type": "array",
+            "description": "Public https image URLs for this slot: at least 1, at most 20, each 1.91:1 and at least 600x314 pixels, PNG or JPEG under 5120 KB.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "square_marketing_images": {
+            "type": "array",
+            "description": "Public https image URLs for this slot: at least 1, at most 20, each 1:1 and at least 300x300 pixels, PNG or JPEG under 5120 KB.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portrait_marketing_images": {
+            "type": "array",
+            "description": "Public https image URLs for this slot: optional, at most 20, each 4:5 and at least 480x600 pixels, PNG or JPEG under 5120 KB.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "logos": {
+            "type": "array",
+            "description": "Public https image URLs for this slot: at least 1, at most 5, each 1:1 and at least 128x128 pixels, PNG or JPEG under 5120 KB.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "landscape_logos": {
+            "type": "array",
+            "description": "Public https image URLs for this slot: optional, at most 20, each 4:1 and at least 512x128 pixels, PNG or JPEG under 5120 KB.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "youtube_video_ids": {
+            "type": "array",
+            "description": "YouTube video ids — the 11-character id from the watch URL, not the URL. At most 5. Omit them and Google generates video from the images instead.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search_themes": {
+            "type": "array",
+            "description": "Search themes telling Google what people look for when they want this, at most 25. They steer the campaign rather than restrict it, and a new campaign with no conversion history needs them most.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "description": "Locations the campaign may show in — geo target constant ids or place names, at most 20. Omit only when the campaign really should reach every country; a campaign with no location criteria targets all locations.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "description": "Languages the campaign may show in — language constant ids, ISO codes (en, uk) or names (English), at most 20. A campaign with no language criteria shows to every language.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "target_roas": {
+            "type": "number",
+            "description": "Target return on ad spend, as a plain ratio: 4.0 asks Google for four units of conversion value per unit of spend. Passing it switches the campaign from maximizing conversion count to maximizing conversion value. Leave it out on a campaign with no conversion history — a target Google cannot hit throttles delivery to nothing."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "name",
+          "daily_budget",
+          "final_url",
+          "headlines",
+          "long_headlines",
+          "descriptions",
+          "business_name",
+          "marketing_images",
+          "square_marketing_images",
+          "logos"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Create Performance Max Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_activate_campaign",
+      "title": "Google Ads: Activate Campaign",
+      "description": "Activate a PAUSED Google Ads campaign so it starts spending. Only works on campaigns created through this server, and re-checks the budget against your daily cap first. If you also run Meta ads, that server exposes meta_activate_campaign.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign id to activate (go live)."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Activate Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_add_keywords",
+      "title": "Google Ads: Add Keywords",
+      "description": "Add keywords to an existing Google Ads ad group, each with its own match type and optional CPC bid. Set negative=true to exclude a search term instead of targeting it. Google cannot move a keyword between ad groups: remove it with google_remove_keywords and add it here instead, which resets its quality score and history. Up to 50 keywords per call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group the keywords are added to."
+          },
+          "keywords": {
+            "type": "array",
+            "description": "Keywords to add, at most 50 per call.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Keyword text."
+                },
+                "match_type": {
+                  "type": "string",
+                  "description": "Match type. Defaults to BROAD.",
+                  "enum": [
+                    "EXACT",
+                    "PHRASE",
+                    "BROAD"
+                  ]
+                },
+                "cpc_bid": {
+                  "type": "number",
+                  "description": "Max CPC bid in the account's currency units. Not allowed on negative keywords."
+                },
+                "negative": {
+                  "type": "boolean",
+                  "description": "True to exclude this keyword instead of targeting it."
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Status for every keyword added by this call. Defaults to ENABLED.",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_group_id",
+          "keywords"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Add Keywords",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_keyword",
+      "title": "Google Ads: Update Keyword",
+      "description": "Pause or resume a single Google Ads keyword and/or change its max CPC bid. Pausing a keyword stops it serving without deleting its history — prefer it to google_remove_keywords when the keyword may come back. A bid only affects delivery when the campaign uses Manual CPC; the result says so when it does not. Find criterion ids with google_list_keywords.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group the keyword sits in."
+          },
+          "criterion_id": {
+            "type": "string",
+            "description": "Criterion id of the keyword, from google_list_keywords."
+          },
+          "status": {
+            "type": "string",
+            "description": "PAUSED to stop it serving, ENABLED to resume.",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          },
+          "cpc_bid": {
+            "type": "number",
+            "description": "New max CPC bid in the account's currency units. Not allowed on negative keywords."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_group_id",
+          "criterion_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Keyword",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_remove_campaign",
+      "title": "Google Ads: Remove Campaign",
+      "description": "Permanently remove a Google Ads campaign. Removal cannot be undone: Google keeps no way back through the API, and the campaign and its history leave the account's default views. Pause with google_set_status when the campaign may come back — a paused campaign costs nothing and keeps its history. Two safeguards apply: the campaign must already be PAUSED, and confirm_campaign_name must match its exact name. Find ids and names with google_list_campaigns.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign id to remove permanently."
+          },
+          "confirm_campaign_name": {
+            "type": "string",
+            "description": "Exact name of that campaign, echoed back as confirmation. The removal is refused when it does not match."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id",
+          "confirm_campaign_name"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Remove Campaign",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_remove_keywords",
+      "title": "Google Ads: Remove Keywords",
+      "description": "Permanently remove keywords from a Google Ads ad group. Removal cannot be undone: re-adding the same text later creates a fresh criterion with no quality score or history, so pause with google_update_keyword when the keyword may come back. Ids that are already gone are reported as skipped instead of failing the call. Find criterion ids with google_list_keywords. Up to 50 per call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group the keywords sit in."
+          },
+          "criterion_ids": {
+            "type": "array",
+            "description": "Criterion ids to remove, at most 50 per call.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_group_id",
+          "criterion_ids"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Remove Keywords",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_remove_ad",
+      "title": "Google Ads: Remove Ads",
+      "description": "Permanently remove ads from a Google Ads account. Removal cannot be undone: Google keeps no way back through the API, and the ad takes its performance history with it out of the account's default views. Pause with google_set_status when the ad may come back — a paused ad costs nothing and keeps its history. Two safeguards apply to every entry: the ad must already be PAUSED, and confirm_headline must match one of that ad's own headlines. Ids that are already gone are reported as skipped instead of failing the call, but a wrong headline or a still-serving ad refuses the whole call and removes nothing. Find ids and headlines with google_list_ads. Up to 20 ads per call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ads": {
+            "type": "array",
+            "description": "Ads to remove permanently, at most 20 per call.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ad_id": {
+                  "type": "string",
+                  "description": "Ad id, as reported by google_list_ads."
+                },
+                "confirm_headline": {
+                  "type": "string",
+                  "description": "One of that ad's current headlines, echoed back as confirmation. The removal is refused when it does not match. For an ad type that carries no headlines, echo the ad's name, or its id when it has no name either."
+                }
+              }
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ads"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Remove Ads",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_create_ad_group",
+      "title": "Google Ads: Create Ad Group",
+      "description": "Create an ad group inside an existing Google Ads Search campaign, optionally with keywords and a default CPC bid. The ad group is created PAUSED and without ads, so it cannot spend until an ad exists: add a responsive search ad with google_create_ad, then enable the ad group with google_set_status. Use this to split a bloated ad group into tighter themes; Google cannot move keywords, so the ones that belong here are re-created with google_add_keywords and dropped from the old ad group with google_remove_keywords, losing their history.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign the ad group is created in."
+          },
+          "name": {
+            "type": "string",
+            "description": "Ad group name."
+          },
+          "cpc_bid": {
+            "type": "number",
+            "description": "Default max CPC bid for the ad group, in the account's currency units."
+          },
+          "keywords": {
+            "type": "array",
+            "description": "Optional keywords to create in the new ad group, at most 50.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Keyword text."
+                },
+                "match_type": {
+                  "type": "string",
+                  "description": "Match type. Defaults to BROAD.",
+                  "enum": [
+                    "EXACT",
+                    "PHRASE",
+                    "BROAD"
+                  ]
+                },
+                "cpc_bid": {
+                  "type": "number",
+                  "description": "Max CPC bid for this keyword. Not allowed on negative keywords."
+                },
+                "negative": {
+                  "type": "boolean",
+                  "description": "True to exclude this keyword instead of targeting it."
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id",
+          "name"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Create Ad Group",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_ad_group",
+      "title": "Google Ads: Update Ad Group",
+      "description": "Rename a Google Ads ad group and/or set its default max CPC bid, which applies to every keyword in it that has no bid of its own. A bid only affects delivery when the campaign uses Manual CPC; the result says so when it does not. To pause or resume the ad group use google_set_status, and to change its keywords use google_add_keywords, google_update_keyword, or google_remove_keywords.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group to update."
+          },
+          "name": {
+            "type": "string",
+            "description": "New ad group name."
+          },
+          "cpc_bid": {
+            "type": "number",
+            "description": "New default max CPC bid in the account's currency units."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_group_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Ad Group",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_ad",
+      "title": "Google Ads: Update Ad",
+      "description": "Rewrite the copy of an existing responsive search ad: its headlines, descriptions, landing page and display paths. The ad keeps its id and performance history, and Google puts it back into policy review after the edit. Each list you pass REPLACES the whole list — send every headline you want the ad to have, not just the new ones — and a field you omit is left untouched. Read the current copy first with google_list_ads. Only responsive search ads can be edited this way; for other ad types create a new one with google_create_ad.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_id": {
+            "type": "string",
+            "description": "Ad to rewrite, as reported by google_list_ads."
+          },
+          "headlines": {
+            "type": "array",
+            "description": "Complete new set of headlines, 3-15 entries of at most 30 characters. An entry may be a plain string or an object with text and pinned. Omit to leave the headlines alone.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Headline text."
+                },
+                "pinned": {
+                  "type": "string",
+                  "description": "Slot to pin this headline to. Omit to let Google rotate it, which is usually better.",
+                  "enum": [
+                    "HEADLINE_1",
+                    "HEADLINE_2",
+                    "HEADLINE_3"
+                  ]
+                }
+              }
+            }
+          },
+          "descriptions": {
+            "type": "array",
+            "description": "Complete new set of descriptions, 2-4 entries of at most 90 characters. Omit to leave the descriptions alone.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Description text."
+                },
+                "pinned": {
+                  "type": "string",
+                  "description": "Slot to pin this description to.",
+                  "enum": [
+                    "DESCRIPTION_1",
+                    "DESCRIPTION_2"
+                  ]
+                }
+              }
+            }
+          },
+          "final_url": {
+            "type": "string",
+            "description": "New landing page the ad clicks through to, an http(s) URL."
+          },
+          "path1": {
+            "type": "string",
+            "description": "First display path segment shown after the domain, at most 15 characters. Pass an empty string to remove it."
+          },
+          "path2": {
+            "type": "string",
+            "description": "Second display path segment. Requires path1."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Ad",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_asset_group_assets",
+      "title": "Google Ads: Update Asset Group Text",
+      "description": "Rewrite the text of a Performance Max asset group: its headlines, long headlines and descriptions. Each list you pass REPLACES the whole list for that slot — send every headline you want the asset group to have, not just the new ones — and a slot you omit is left untouched. Text that is already there keeps its existing asset and its performance history, so repeating a headline you want to keep costs nothing. Read the current copy first with google_list_asset_groups and include_assets. Google's minimums apply and cannot be crossed: 3 headlines, 1 long headline, 2 descriptions, with at least one description of 60 characters or fewer. For images, logos and video use google_update_asset_group_media; for search themes google_update_search_themes; for a responsive search ad google_update_ad.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_group_id": {
+            "type": "string",
+            "description": "Asset group to rewrite, as reported by google_list_asset_groups."
+          },
+          "headlines": {
+            "type": "array",
+            "description": "Complete new set of headlines, 3-15 entries of at most 30 characters. An entry may be a plain string or an object with a text. Performance Max assets are never pinned. Omit to leave the headlines alone.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Headline text."
+                }
+              }
+            }
+          },
+          "long_headlines": {
+            "type": "array",
+            "description": "Complete new set of long headlines, 1-5 entries of at most 90 characters. These are the headlines Google uses where there is room for a full sentence. Omit to leave them alone.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Long headline text."
+                }
+              }
+            }
+          },
+          "descriptions": {
+            "type": "array",
+            "description": "Complete new set of descriptions, 2-5 entries of at most 90 characters, of which at least one must be 60 characters or fewer — Google refuses an asset group whose descriptions are all long. Omit to leave them alone.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Description text. Write one of them at 60 characters or fewer before writing the long ones — the call is refused when every description is longer than that."
+                }
+              }
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_group_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Asset Group Text",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_search_themes",
+      "title": "Google Ads: Update Search Themes",
+      "description": "Set the search themes of a Performance Max asset group — the phrases that tell Google which demand this asset group is meant to capture, which is one of the few direct controls a Performance Max campaign has. The list you pass REPLACES the whole set: send every theme you want the asset group to have, including the ones already there. A theme that drops out of the list is deleted and this tool cannot bring it back. At most 25 themes of 80 characters each. Audience signals on the same asset group are never touched. Read the current themes first with google_list_asset_groups and include_search_themes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_group_id": {
+            "type": "string",
+            "description": "Asset group whose search themes to set, as reported by google_list_asset_groups."
+          },
+          "search_themes": {
+            "type": "array",
+            "description": "The complete new set of search themes, at most 25 entries of 80 characters or fewer. Write them the way someone would search, not as keywords with match types. Pass an empty array to remove every search theme, which leaves Google inferring intent entirely on its own.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_group_id",
+          "search_themes"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Search Themes",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_asset_group",
+      "title": "Google Ads: Update Asset Group",
+      "description": "Change the settings of a Performance Max asset group: its name, whether it is enabled or paused, the landing pages it sends clicks to and the display paths shown after the domain. This is how one asset group of a campaign is stopped or restarted without touching the others. final_urls REPLACES the whole list, and a field you omit is left untouched. An asset group cannot be moved to a different campaign. For the headlines and descriptions inside the group use google_update_asset_group_assets, and for its search themes google_update_search_themes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_group_id": {
+            "type": "string",
+            "description": "Asset group to change, as reported by google_list_asset_groups."
+          },
+          "name": {
+            "type": "string",
+            "description": "New name for the asset group."
+          },
+          "status": {
+            "type": "string",
+            "description": "PAUSED stops this asset group serving while the rest of the campaign carries on; ENABLED makes it eligible to spend the campaign budget again.",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          },
+          "final_urls": {
+            "type": "array",
+            "description": "Complete new list of landing pages for this asset group, as http(s) URLs. Replaces the whole list; an asset group must keep at least one.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "path1": {
+            "type": "string",
+            "description": "First display path segment shown after the domain, at most 15 characters. Pass an empty string to remove it."
+          },
+          "path2": {
+            "type": "string",
+            "description": "Second display path segment. Requires path1."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_group_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Asset Group",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_campaign_settings",
+      "title": "Google Ads: Update Campaign Settings",
+      "description": "Rename a Google Ads campaign and change the dates it runs between. Removing an end date is the fix for a campaign that looks ENABLED but spends nothing because its end date has passed — pass end_date as null to let it run until it is paused. An end date in the past is refused, because it would stop a campaign retroactively; use google_set_status with PAUSED for that, which is reversible. The start date of a campaign that has already started cannot be moved. For daily budgets use google_update_budget, for pausing and enabling google_set_status, for bidding google_update_campaign_bidding, and for locations and languages google_update_campaign_targeting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to change."
+          },
+          "name": {
+            "type": "string",
+            "description": "New campaign name, at most 128 characters. Must be unique among the account's campaigns. Renaming breaks saved reports, rules and scripts that match on the old name, so the result reports what the previous name was."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "New start date as YYYY-MM-DD in the serving account's own timezone. The campaign starts at the beginning of that day; time of day cannot be set here. Only settable on a campaign that has not started yet."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "New end date as YYYY-MM-DD. The campaign stops at the end of that day. Pass null to remove the end date so the campaign runs until it is paused. Must not be in the past."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Settings",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_campaign_negatives",
+      "title": "Google Ads: Update Campaign Negative Keywords",
+      "description": "Stop a Google Ads campaign from serving on queries and brands you do not want it on. Adds campaign-level negative keywords with EXACT, PHRASE or BROAD match, and for Performance Max and search campaigns adds brand exclusions — a brand list Google matches against every variation and misspelling of a brand, which plain negative keywords cannot do. Together these are the fix for a Performance Max campaign cannibalizing your own brand search: exclude your brand to push branded traffic back to the search campaign that was already winning it, or exclude a competitor's brand to stop paying for their name. Also removes negative keywords, detaches a brand list from a campaign, and takes individual brands out of a list. Call it with no changes to read what a campaign already excludes. A search campaign needs AI Max turned on in Google Ads before a brand list can be attached to it; a Performance Max campaign needs nothing. Refuses to edit a brand list that is shared with other campaigns. For ad-group-level negatives use google_add_keywords and google_remove_keywords; for locations and languages use google_update_campaign_targeting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to change."
+          },
+          "negative_keywords": {
+            "type": "array",
+            "description": "Negative keywords to ADD, at most 50 per call. An entry may be a plain string or an object with a text and a match_type. Adding is additive: keywords the campaign already excludes are skipped rather than duplicated.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Query text to exclude."
+                },
+                "match_type": {
+                  "type": "string",
+                  "description": "BROAD (the default) blocks the phrase and its variants in any order, PHRASE blocks the phrase in order, EXACT blocks only that exact query. A broad negative is the blunt one: it also blocks queries you may want.",
+                  "enum": [
+                    "EXACT",
+                    "PHRASE",
+                    "BROAD"
+                  ]
+                }
+              }
+            }
+          },
+          "brands": {
+            "type": "array",
+            "description": "Brand names to exclude, at most 10 per call — e.g. your own brand, or a competitor's. Google resolves each name to a brand it recognizes and refuses a name it does not, listing what it suggests instead. Performance Max campaigns, and search campaigns with AI Max on.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_criterion_ids": {
+            "type": "array",
+            "description": "Criterion ids to remove, as reported by this tool. Removes negative keywords, and detaches a brand list from the campaign — the list itself survives in the account for reuse.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remove_brands": {
+            "type": "array",
+            "description": "Brand names or entity ids to take OUT of the campaign's brand list. The list stays attached; emptying it excludes nothing.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Campaign Negative Keywords",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_asset_group_media",
+      "title": "Google Ads: Update Asset Group Media",
+      "description": "Replace the images, logos, YouTube video or call-to-action of a Performance Max asset group. Images are given as public https URLs, which this server downloads and uploads to Google; videos are given as YouTube video ids, not URLs. Each list REPLACES the whole slot — send every image you want the slot to have — and a slot you omit is left untouched. An image whose bytes Google already holds keeps its existing asset and its performance history, so passing the same URLs again changes nothing; note that the match is on exact bytes, so a re-encoded copy of the same picture counts as a new image. Google's shapes are enforced before anything is uploaded: marketing images 1.91:1, square 1:1, portrait 4:5, logos 1:1, landscape logos 4:1. For headlines and descriptions use google_update_asset_group_assets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_group_id": {
+            "type": "string",
+            "description": "Asset group to change, as reported by google_list_asset_groups."
+          },
+          "marketing_images": {
+            "type": "array",
+            "description": "Complete new set of public https image URLs for this slot: at least 1, at most 20, each 1.91:1 and at least 600x314 pixels, PNG or JPEG under 5120 KB. Omit to leave this slot alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "square_marketing_images": {
+            "type": "array",
+            "description": "Complete new set of public https image URLs for this slot: at least 1, at most 20, each 1:1 and at least 300x300 pixels, PNG or JPEG under 5120 KB. Omit to leave this slot alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portrait_marketing_images": {
+            "type": "array",
+            "description": "Complete new set of public https image URLs for this slot: optional, at most 20, each 4:5 and at least 480x600 pixels, PNG or JPEG under 5120 KB. Omit to leave this slot alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "logos": {
+            "type": "array",
+            "description": "Complete new set of public https image URLs for this slot: at least 1, at most 5, each 1:1 and at least 128x128 pixels, PNG or JPEG under 5120 KB. Omit to leave this slot alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "landscape_logos": {
+            "type": "array",
+            "description": "Complete new set of public https image URLs for this slot: optional, at most 20, each 4:1 and at least 512x128 pixels, PNG or JPEG under 5120 KB. Omit to leave this slot alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "youtube_video_ids": {
+            "type": "array",
+            "description": "Complete new set of YouTube video ids — the 11-character id from the watch URL, not the URL. At most 15. Omit to leave the videos alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "call_to_action": {
+            "type": "string",
+            "description": "The button text Google shows. AUTOMATED removes the asset and lets Google choose, which is usually the better answer unless a specific action matters.",
+            "enum": [
+              "AUTOMATED",
+              "APPLY_NOW",
+              "BOOK_NOW",
+              "BUY_NOW",
+              "CONTACT_US",
+              "DONATE_NOW",
+              "DOWNLOAD",
+              "GET_QUOTE",
+              "LEARN_MORE",
+              "ORDER_NOW",
+              "PLAY_NOW",
+              "SEE_MORE",
+              "SHOP_NOW",
+              "SIGN_UP",
+              "START_NOW",
+              "SUBSCRIBE",
+              "VISIT_SITE",
+              "WATCH_NOW"
+            ]
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_group_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Asset Group Media",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_brand_assets",
+      "title": "Google Ads: Update Brand Assets",
+      "description": "Change the business name and logos of a Google Ads campaign. On a Performance Max campaign with brand guidelines enabled — Google's default for campaigns created recently — these three assets live on the campaign rather than on each asset group, which is why google_update_asset_group_assets and google_update_asset_group_media refuse them and send you here. Logos are given as public https URLs, which this server downloads and uploads to Google: square logos must be 1:1 and at least 128x128, landscape logos 4:1 and at least 512x128. Each list REPLACES the whole slot and a slot you omit is left untouched. Brand guidelines make a business name and at least one logo mandatory, so neither can be emptied.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign whose brand assets to change."
+          },
+          "business_name": {
+            "type": "string",
+            "description": "The advertiser name Google shows alongside the ad, at most 25 characters."
+          },
+          "logos": {
+            "type": "array",
+            "description": "Complete new set of public https URLs for square logos: 1:1 and at least 128x128 pixels. Replaces the whole slot; omit to leave the logos alone.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "landscape_logos": {
+            "type": "array",
+            "description": "Complete new set of public https URLs for landscape logos: 4:1 and at least 512x128 pixels. Optional slot.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "campaign_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Brand Assets",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_create_ad",
+      "title": "Google Ads: Create Ad",
+      "description": "Create a new responsive search ad in an ad group that already exists, without touching the ads already running there. This is how you test new copy against current copy: the existing ad keeps serving and its history, and the new one competes alongside it. The ad is always created PAUSED, so it does not serve or spend until you enable it with google_set_status, and Google reviews it before it can serve. To change the copy of an existing ad instead of adding one, use google_update_ad; to build a whole new campaign, use google_create_campaign; to turn this ad on afterwards, use google_set_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group the new ad goes into, as reported by google_list_campaigns with include_ad_groups or by google_list_ads."
+          },
+          "headlines": {
+            "type": "array",
+            "description": "3-15 headlines of at most 30 characters. An entry may be a plain string or an object with text and pinned.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Headline text."
+                },
+                "pinned": {
+                  "type": "string",
+                  "description": "Slot to pin this headline to. Omit to let Google rotate it, which is usually better.",
+                  "enum": [
+                    "HEADLINE_1",
+                    "HEADLINE_2",
+                    "HEADLINE_3"
+                  ]
+                }
+              }
+            }
+          },
+          "descriptions": {
+            "type": "array",
+            "description": "2-4 descriptions of at most 90 characters.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Description text."
+                },
+                "pinned": {
+                  "type": "string",
+                  "description": "Slot to pin this description to.",
+                  "enum": [
+                    "DESCRIPTION_1",
+                    "DESCRIPTION_2"
+                  ]
+                }
+              }
+            }
+          },
+          "final_url": {
+            "type": "string",
+            "description": "Landing page the ad clicks through to, an http(s) URL."
+          },
+          "path1": {
+            "type": "string",
+            "description": "First display path segment shown after the domain, at most 15 characters. Optional."
+          },
+          "path2": {
+            "type": "string",
+            "description": "Second display path segment. Requires path1."
+          },
+          "status": {
+            "type": "string",
+            "description": "Always PAUSED — the ad does not serve until google_set_status enables it.",
+            "enum": [
+              "PAUSED"
+            ]
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "ad_group_id",
+          "headlines",
+          "descriptions",
+          "final_url"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Create Ad",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_conversion_action",
+      "title": "Google Ads: Update Conversion Action",
+      "description": "Change how a Google Ads conversion action counts and values conversions: its counting type (ONE_PER_CLICK counts one conversion per click, MANY_PER_CLICK counts every occurrence), its category, whether it is primary and therefore feeds Smart Bidding and the conversions column, its default value and currency, and its click-through and view-through lookback windows. Use it to fix what google_list_conversion_actions reports — a purchase action counting every occurrence, a lead action inflating the number, a flat default value on an action that should send real order values. Read the action first with google_list_conversion_actions. Only the settings you pass change; the rest are left alone. Note that Google Ads only imports an action whose type starts with GOOGLE_ANALYTICS_4_, UNIVERSAL_ANALYTICS_, FIREBASE_ or THIRD_PARTY_APP_ANALYTICS_, and refuses to change its counting type or its lookback windows through the API — those live in the system that produces the conversion, so for a Google Analytics key event the counting method is set in Analytics. A UNIVERSAL_ANALYTICS_ import and an action owned by a different account (cross-account conversion tracking) cannot be edited here at all. This changes counting from now on and does not restate past conversions, and Smart Bidding takes a week or two to settle afterwards. To choose which conversions a single campaign optimizes for, use google_update_campaign_conversion_goals instead. Deleting a conversion action is not offered here because it cannot be undone.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conversion_action_id": {
+            "type": "string",
+            "description": "Conversion action to change, as reported by google_list_conversion_actions."
+          },
+          "counting_type": {
+            "type": "string",
+            "description": "How repeat events after one click are counted. ONE_PER_CLICK (the Google Ads UI calls it \"One\") suits leads, sign-ups and contacts, where the same person filling the form twice is still one lead. MANY_PER_CLICK (\"Every\") suits purchases, where two orders are two conversions.",
+            "enum": [
+              "ONE_PER_CLICK",
+              "MANY_PER_CLICK"
+            ]
+          },
+          "primary_for_goal": {
+            "type": "boolean",
+            "description": "True makes the action primary: it feeds Smart Bidding and the main conversions column. False makes it secondary — still recorded and reportable, but not bid towards."
+          },
+          "status": {
+            "type": "string",
+            "description": "ENABLED records conversions for this action. HIDDEN stops it being recorded and takes it out of the interface without deleting it.",
+            "enum": [
+              "ENABLED",
+              "HIDDEN"
+            ]
+          },
+          "default_value": {
+            "type": "number",
+            "description": "Value a conversion of this action is worth when the tag sends no value of its own. In the account's own currency (the currency field of google_list_campaigns or meta_list_campaigns), not in dollars and not in minor units."
+          },
+          "default_currency_code": {
+            "type": "string",
+            "description": "ISO currency code the default value is denominated in, e.g. USD. Defaults to the account currency when the action has none."
+          },
+          "always_use_default_value": {
+            "type": "boolean",
+            "description": "True makes every conversion worth the default value, ignoring the value the tag sends — which quietly breaks value-based bidding on a purchase action. False lets real transaction values through."
+          },
+          "click_through_lookback_days": {
+            "type": "integer",
+            "description": "How many days after a click a conversion still counts, 1-90."
+          },
+          "view_through_lookback_days": {
+            "type": "integer",
+            "description": "How many days after an impression without a click a conversion still counts, 1-30."
+          },
+          "category": {
+            "type": "string",
+            "description": "Conversion category this action reports under, e.g. PURCHASE, SUBMIT_LEAD_FORM, SIGNUP, CONTACT. Categories are how conversion goals group actions, so changing it moves the action into a different goal. Editable even on an action imported from Google Analytics."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "conversion_action_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Conversion Action",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_list_sitelinks",
+      "title": "Google Ads: List Sitelinks",
+      "description": "List the sitelinks of a Google Ads account — the extra links shown under a Search ad — with their link text, the two description lines, the page each one sends people to, and whether they are attached to the whole account, to one campaign or to one ad group. Use this to find campaigns running without sitelinks, sitelinks pointing at dead or generic pages, and sitelinks that just repeat the ad's own headlines. Set include_metrics to also get each sitelink's clicks, impressions, cost and conversions for the range; the clicks are split into clicks on the sitelink itself and clicks elsewhere in the ad while it was showing, because Google reports the two together and only the first belongs to the sitelink. For the ads themselves use google_list_ads, and for Performance Max asset groups use google_list_asset_groups.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          },
+          "level": {
+            "type": "string",
+            "description": "Which link level to read. Default all: the account's own sitelinks, the ones on campaigns and the ones on ad groups.",
+            "enum": [
+              "all",
+              "account",
+              "campaign",
+              "ad_group"
+            ]
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Only sitelinks linked to this campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Only sitelinks linked to this ad group."
+          },
+          "include_metrics": {
+            "type": "boolean",
+            "description": "Also return each sitelink's clicks, impressions, cost and conversions. Default false — it costs a second query per level."
+          },
+          "date_preset": {
+            "type": "string",
+            "description": "Preset range for the metrics. Default LAST_30_DAYS. Ignored when since/until are set, and irrelevant without include_metrics.",
+            "enum": [
+              "TODAY",
+              "YESTERDAY",
+              "LAST_7_DAYS",
+              "LAST_14_DAYS",
+              "LAST_30_DAYS",
+              "THIS_MONTH",
+              "LAST_MONTH"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Custom range start, YYYY-MM-DD."
+          },
+          "until": {
+            "type": "string",
+            "description": "Custom range end, YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max rows per level. Default 100, max 1000."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Google Ads: List Sitelinks",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_create_sitelinks",
+      "title": "Google Ads: Create Sitelinks",
+      "description": "Add sitelinks — the extra links under a Search ad — and attach them to the whole account, to one campaign or to one ad group. Each sitelink needs link text of at most 25 characters and an https landing page, and may carry two description lines of at most 35 characters each — Google shows both lines or neither, so pass both or neither. Google serves at most 20 sitelinks per level, and this call is refused if the new ones would not fit. Calling it twice creates two sets: unlike ad copy, Google does not recognise a sitelink it already holds, and an asset can never be deleted. Read what is already there with google_list_sitelinks first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "description": "Where the sitelinks serve: account for every campaign in the account, campaign for one campaign, ad_group for one ad group. Defaults to campaign.",
+            "enum": [
+              "account",
+              "campaign",
+              "ad_group"
+            ]
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to attach them to, when level is campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group to attach them to, when level is ad_group."
+          },
+          "sitelinks": {
+            "type": "array",
+            "description": "Sitelinks to create, at most 20 per call.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "link_text": {
+                  "type": "string",
+                  "description": "The clickable line, at most 25 characters."
+                },
+                "final_url": {
+                  "type": "string",
+                  "description": "https page the click lands on."
+                },
+                "description1": {
+                  "type": "string",
+                  "description": "First description line, at most 35 characters. Requires description2."
+                },
+                "description2": {
+                  "type": "string",
+                  "description": "Second description line, same limit. Requires description1."
+                }
+              },
+              "required": [
+                "link_text",
+                "final_url"
+              ]
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "sitelinks"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Create Sitelinks",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_update_sitelink",
+      "title": "Google Ads: Update Sitelink",
+      "description": "Rewrite an existing Google Ads sitelink: its link text, its two description lines or the page it sends people to. Editing keeps the sitelink's id and its performance history, which is why this is the right way to fix a dead landing page or reword a link rather than removing it and creating a replacement. A sitelink is one shared asset: if it is linked to several campaigns or ad groups, this changes it in all of them, and the result lists everywhere it is used — tell the user before calling. Get asset ids from google_list_sitelinks. Pass only the fields you are changing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "description": "Sitelink asset to rewrite, from google_list_sitelinks."
+          },
+          "link_text": {
+            "type": "string",
+            "description": "New clickable line, at most 25 characters."
+          },
+          "description1": {
+            "type": "string",
+            "description": "New first description line, at most 35 characters."
+          },
+          "description2": {
+            "type": "string",
+            "description": "New second description line, same limit."
+          },
+          "final_url": {
+            "type": "string",
+            "description": "New https page the click lands on."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_id"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Update Sitelink",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_remove_sitelinks",
+      "title": "Google Ads: Remove Sitelinks",
+      "description": "Stop sitelinks serving on the whole account, on one campaign or on one ad group. This removes the link, not the sitelink: the asset stays in the account and can be linked again, and unlinking it from one campaign leaves the other campaigns using it alone. An asset id that is not linked at the level given is reported as skipped rather than failing the call. Get asset ids and their levels from google_list_sitelinks. To rewrite a sitelink instead of removing it, use google_update_sitelink — that keeps its performance history.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "description": "Which link to remove: account, campaign or ad_group. Defaults to campaign.",
+            "enum": [
+              "account",
+              "campaign",
+              "ad_group"
+            ]
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to unlink from, when level is campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group to unlink from, when level is ad_group."
+          },
+          "asset_ids": {
+            "type": "array",
+            "description": "Sitelink asset ids to unlink, from google_list_sitelinks.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "asset_ids"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Remove Sitelinks",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_remove_asset_links",
+      "title": "Google Ads: Remove Callouts and Other Assets",
+      "description": "Stop callouts, structured snippets, call, price, promotion, app, lead form or image assets serving on the whole account, on one campaign or on one ad group. This removes the link, not the asset: it stays in the account and can be linked again, and other campaigns using the same asset are left alone. An asset id that is not linked at the level given is reported as skipped rather than failing the call. Find asset ids with google_query, e.g. SELECT asset.id, asset.callout_asset.callout_text FROM campaign_asset WHERE campaign_asset.field_type = 'CALLOUT'. For sitelinks use google_remove_sitelinks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "field_type": {
+            "type": "string",
+            "description": "Kind of asset to unlink, e.g. CALLOUT.",
+            "enum": [
+              "CALLOUT",
+              "STRUCTURED_SNIPPET",
+              "CALL",
+              "PRICE",
+              "PROMOTION",
+              "MOBILE_APP",
+              "LEAD_FORM",
+              "AD_IMAGE",
+              "HOTEL_CALLOUT"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "description": "Which link to remove: account, campaign or ad_group. Defaults to campaign.",
+            "enum": [
+              "account",
+              "campaign",
+              "ad_group"
+            ]
+          },
+          "campaign_id": {
+            "type": "string",
+            "description": "Campaign to unlink from, when level is campaign."
+          },
+          "ad_group_id": {
+            "type": "string",
+            "description": "Ad group to unlink from, when level is ad_group."
+          },
+          "asset_ids": {
+            "type": "array",
+            "description": "Asset ids to unlink.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "field_type",
+          "asset_ids"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Remove Callouts and Other Assets",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_query",
+      "title": "Google Ads: Run Query",
+      "description": "Run a read-only Google Ads Query Language (GAQL) SELECT against the account and return the raw rows. Use this for reporting questions the typed tools do not cover — a breakdown by device and day of week, impression share lost to rank, month-over-month by network, ad approval status. Prefer the typed tools where one fits: google_get_insights for standard performance, google_list_campaigns, google_list_ads, google_list_keywords, google_list_search_terms. This tool cannot change anything; every write has its own tool. Call google_get_resource_metadata first when unsure which fields a resource has. Note the case difference: the query is written in snake_case (campaign.name, metrics.cost_micros) and the rows come back in camelCase (campaign.name, metrics.costMicros), because that is what the API returns. Money arrives in micros — divide by 1,000,000. A query with no LIMIT gets LIMIT 100, and LIMIT above 1000 is lowered to it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The GAQL statement, e.g. \"SELECT campaign.name, segments.device, metrics.cost_micros, metrics.conversions FROM campaign WHERE segments.date DURING LAST_30_DAYS ORDER BY metrics.cost_micros DESC\". One SELECT, no semicolon. Date ranges use segments.date with DURING or BETWEEN."
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Google Ads customer id. Defaults to the selected one."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Run Query",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "google_get_resource_metadata",
+      "title": "Google Ads: Get Resource Metadata",
+      "description": "List the fields a Google Ads resource exposes to GAQL, with each field's data type, its enum values, and whether it can be selected, filtered or sorted on. Use it before google_query when unsure what a resource is called or which fields it has — a guessed field name costs a rejected query. Pass a resource name in snake_case: campaign, ad_group, ad_group_criterion, ad_group_ad, customer, keyword_view, search_term_view, geographic_view, campaign_budget, conversion_action, asset, asset_group. Pass `contains` to narrow a wide resource, e.g. resource=campaign contains=bidding. Segments and metrics are their own resources: use resource=segments or resource=metrics to list those.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "description": "Resource name in snake_case, e.g. campaign, ad_group_criterion, segments, metrics."
+          },
+          "contains": {
+            "type": "string",
+            "description": "Only fields whose full name contains this text, e.g. \"bidding\" or \"status\"."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max fields, alphabetical. Default 200, max 500."
+          }
+        },
+        "required": [
+          "resource"
+        ]
+      },
+      "annotations": {
+        "title": "Google Ads: Get Resource Metadata",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}
